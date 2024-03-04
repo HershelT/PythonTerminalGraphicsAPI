@@ -1,11 +1,13 @@
-#Code to generate an image from a png file
+# Import the Pillow library
+# from PythonTerminalSprites import *
 from PIL import Image, ImageChops
 import os
 import re
 from AnsiiEscapeColors import *
+# from numpy import  array, reshape, asarray, ndarray
 import numpy as np
 
-def generate_ascii_colors():
+def generate_ansi_colors():
     basic_colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0),
                     (0, 0, 128), (128, 0, 128), (0, 128, 128), (192, 192, 192),
                     (128, 128, 128), (255, 0, 0), (0, 255, 0), (255, 255, 0),
@@ -13,10 +15,48 @@ def generate_ascii_colors():
     levels = [0, 95, 135, 175, 215, 255]
     extended_colors = [(r, g, b) for r in levels for g in levels for b in levels]    
     return basic_colors + extended_colors
-ascii_colors = generate_ascii_colors()
+ansi_colors = generate_ansi_colors()
+# print(ansi_colors)
 
-pixel_to_asciicode = {}
-# Class to create a list of images in ascii array format 
+# Open the .gpl file
+# Open the .gpl file
+# with open("ansi_colors.gpl", "w") as file:
+#     # Write the header
+#     file.write("GIMP Palette\n")
+#     file.write("Name: ANSI Colors\n")
+#     file.write("Columns: 4\n")
+#     file.write("#\n")
+#     # Write the colors
+#     for rgb in ansi_colors:
+#         file.write(f"{rgb[0]} {rgb[1]} {rgb[2]} Color\n")
+# Loop through each pixel in the image to get the rgb value
+pixel_to_ansicode = {}
+import copy
+class Pixel: 
+    def __init__(self, image: list):
+        self.image = image
+    def get(self):
+        return self.image
+    def getCopy(self, image):
+        return Pixel(copy.deepcopy(image))
+    def getPixel(self, row, col):
+        return self.image[row][col]
+    def setPixel(self, row, col, color):
+        self.image[row][col] = color
+    def replaceAllPixels(self, newColor):
+        for row in range(len(self.image)):
+            for col in range(len(self.image[row])):
+                self.image[row][col] = newColor
+    def replacePixels(self, oldColor, newColor):
+        for row in range(len(self.image)):
+            for col in range(len(self.image[row])):
+                if self.image[row][col] == oldColor:
+                    self.image[row][col] = newColor
+    def getColorAtSpot(self, row, col):
+        return self.image[row][col]
+    
+    
+
 class pixelImage:
     
     @staticmethod
@@ -40,33 +80,32 @@ class pixelImage:
             img = img.crop(bbox)
 
         return img
-    def __init__(self, img : list , scaleRatio = False, trim = True):
+    def __init__(self, img : list , scaleRatio = False):
         imageList = []
-        self.ImageAscii = []
+
+        self.ImageAnscii = []
         for image in img:
-            if trim:
-                imageList.append(self.trim_image(Image.open(image)))
-            else:
-                imageList.append(Image.open(image))
+            imageList.append(self.trim_image(Image.open(image)))
             # imageList.append(Image.open(image))
         for rgb in imageList:
-            self.ImageAscii.append(self.getPixelToAscii(rgb, scaleRatio))
+            pixel = self.getPixelToAnscii(rgb, scaleRatio)
+            self.ImageAnscii.append(Pixel(pixel))
 
-    def getAsciiList(self):
-        return self.ImageAscii
+    def getAnsciiList(self):
+        return self.ImageAnscii
     def size(self, image):
         width, height = image.size
         return width, height
-    def rgb_to_ascii(self, r, g, b):
+    def rgb_to_anscii(self, r, g, b):
         def distance(c1, c2):
             return sum((x1-x2)**2 for x1,x2 in zip(c1, c2))
         rgb_color = (r, g, b)
-        # Find the index of the closest color in the ascii_colors list
-        closest_color = min(range(len(ascii_colors)), key=lambda index: distance(rgb_color, ascii_colors[index]))
+        # Find the index of the closest color in the ansi_colors list
+        closest_color = min(range(len(ansi_colors)), key=lambda index: distance(rgb_color, ansi_colors[index]))
         # Return the ANSI color code
-        pixel_to_asciicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
+        pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
         return "\033[48;5;{}m".format(closest_color)
-    def getPixelToAscii(self, image, scaleRatio = False):
+    def getPixelToAnscii(self, image, scaleRatio = False):
         # Convert the image to RGB if it's not already
         if image.mode != 'RGB':
             image = image.convert('RGB')
@@ -76,29 +115,31 @@ class pixelImage:
             row = []
             for y in range(sizes[0]):
                 r, g, b = image.getpixel((y, x))
-                if (r,g,b) in pixel_to_asciicode:
-                    color = pixel_to_asciicode[(r,g,b)]
-                    row.append(color + ' ')
+                if (r,g,b) in pixel_to_ansicode:
+                    row.append(pixel_to_ansicode[(r,g,b)] + ' ')
                     if scaleRatio:
-                        row.append(color + ' ')
+                        row.append(pixel_to_ansicode[(r,g,b)] + ' ')
                 else:
-                    color = self.rgb_to_ascii(r,g,b)
-                    row.append(color + ' ')
+                    row.append(self.rgb_to_anscii(*(r,g,b)) + ' ')
                     if scaleRatio:
-                        row.append(color + ' ')
+                        row.append(self.rgb_to_anscii(*(r,g,b)) + ' ')
             ansi_codes.append(row)
-        return ansi_codes
-        # ansi_codes = list(map(lambda pixel: (self.rgb_to_ascii(*pixel) + ' ') *(2 if scaleRatio else 1), pixels))
+        # ansi_codes = list(map(lambda pixel: (self.rgb_to_anscii(*pixel) + ' ') *(2 if scaleRatio else 1), pixels))
         # Convert the list of ANSI codes to a 2D numpy array and return it
+        return ansi_codes
         # return [ansi_codes[i*width:(i+1)*width] for i in range(height)]
         # return np.array(ansi_codes).reshape(img.size[1], img.size[0])
-    def printOutImage(self, imageAscii : list):
+    def printOutImage(self, imageAnscii : list):
         # drawing = self.colors.tolist()  
-        print('\033[0m\n'.join(''.join(row) for row in imageAscii), end=reset)
-    def printOutNumpy(self, imageAscii : list):
-        print(np.array(imageAscii))
-    def getPixelArray(self, imageAtSpot):
-        return self.ImageAscii[imageAtSpot]
+        print('\033[0m\n'.join(''.join(row) for row in imageAnscii), end=reset)
+    def printOutNumpy(self, imageAnscii : list):
+        print(np.array(imageAnscii))
+    def getPixel(self, index) -> Pixel:
+        return self.ImageAnscii[index]
+    def getPixelArray(self, index):
+        array : Pixel = self.ImageAnscii[index]
+        return array.get()
+    
 
 # Convert the 2D array to a string
 
@@ -109,54 +150,27 @@ is_windows = os.name == 'nt'
 dir_sep = '\\' if is_windows else '/'
 
 #declare all the images
-ConnectFourBoard = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard1.png',
-                     f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard2.png',
-                      f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard3.png',
-                       f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard4.png',]
-AlternateConnectFourBoard = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard5.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard6.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard7.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard8.png',]
-                        # f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces9.png',]
+# humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human3.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human4.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human5.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human6.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human7.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human8.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human9.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human10.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
+# bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
+# heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
+# healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
+#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
+#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
+# BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
 
-ConnectFourPieces = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces1.png',
-                      f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces2.png',
-                      f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces3.png',
-                      f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces4.png',
-                      f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces9.png',]
-
-AlternateConnectFourPieces = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces5.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces6.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces7.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces8.png',
-                        f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourPieces9.png',]
-
-OthelloBoard = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloBoard1.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloBoard2.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloBoard3.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloBoard4.png',]
-
-OthelloPieces = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloPieces1.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloPieces2.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloPieces3.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloPieces4.png',
-                    f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}OthelloPieces5.png',]
-WinDisplay = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard9.png',
-              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard10.png',
-              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard11.png',
-              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}ConnectFourBoard12.png',]
-
-#create a pixel image object
-ConnectFourBoard = pixelImage(ConnectFourBoard, True)
-ConnectFourPieces = pixelImage(ConnectFourPieces, True)
-#alternate Colors
-AlternateConnectFourBoard = pixelImage(AlternateConnectFourBoard, True)
-AlternateConnectFourPieces = pixelImage(AlternateConnectFourPieces, True)
-# print(np.array(list((AlternateConnectFourBoard.rgb_to_ascii(0, 135, 215)))))
-#Win display
-WinDisplay = pixelImage(WinDisplay, True)
-#working on othello board
-OthelloBoard = pixelImage(OthelloBoard, True)
-OthelloPieces = pixelImage(OthelloPieces, True)
-
-
+# Human  = pixelImage(humanList, True)
+# Bullet = pixelImage(bulletList, True)
+# Heart  = pixelImage(heartList,True)
+# Health = pixelImage(healthList,True)
+# Background = pixelImage(BackgroundList,False)
