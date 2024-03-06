@@ -149,6 +149,10 @@ class pixelImage:
 is_windows = os.name == 'nt'
 dir_sep = '\\' if is_windows else '/'
 
+
+
+
+
 #declare all the images
 # humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
 #             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
