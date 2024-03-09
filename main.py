@@ -202,7 +202,7 @@ def drawSetSquare(screen, color, center, length):
 # Running main
 clear()
 #initialize a screen size
-Scene = screen(35, 50, black)
+Scene = screen(35, 45, black)
 
 #make a couple Solid squares
 squareBlue = square(5, 5, black)
