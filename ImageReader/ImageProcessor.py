@@ -94,7 +94,7 @@ class pixelImage:
             img = img.crop(bbox)
 
         return img
-    def __init__(self, img : list , scaleRatio = False):
+    def __init__(self, img : list):
         imageList = []
 
         self.ImageAnscii = []
@@ -102,7 +102,7 @@ class pixelImage:
             imageList.append(self.trim_image(Image.open(image)))
             # imageList.append(Image.open(image))
         for rgb in imageList:
-            pixel = self.getPixelToAnscii(rgb, scaleRatio)
+            pixel = self.getPixelToAnscii(rgb)
             self.ImageAnscii.append(Pixel(pixel))
 
     def getAnsciiList(self):
@@ -125,7 +125,7 @@ class pixelImage:
             return "\033[48;5;{}m".format(closest_color)
         
         return pixel_to_ansicode[r, g, b]
-    def getPixelToAnscii(self, image, scaleRatio = False):
+    def getPixelToAnscii(self, image):
         # Convert the image to RGB if it's not already
         if image.mode != 'RGB':
             image = image.convert('RGB')
@@ -172,8 +172,10 @@ healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
 BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
-Human  = pixelImage(humanList, True)
-Bullet = pixelImage(bulletList, True)
-Heart  = pixelImage(heartList,True)
-Health = pixelImage(healthList,True)
-Background = pixelImage(BackgroundList,False)
+
+# Create a new PixelImage object for each image in the list
+Human  = pixelImage(humanList)
+Bullet = pixelImage(bulletList)
+Heart  = pixelImage(heartList)
+Health = pixelImage(healthList)
+Background = pixelImage(BackgroundList)
