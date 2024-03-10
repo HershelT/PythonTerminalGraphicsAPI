@@ -35,28 +35,40 @@ import copy
 class Pixel: 
     def __init__(self, image: list):
         self.image = image
+    #Gets the 2d array representation of the image
     def get(self):
         return self.image
+    #returns a deepcopy of the 2d array
     def getCopy(self, image):
         return Pixel(copy.deepcopy(image))
+    #gets certain color of pixel at speicifc position
     def getPixel(self, row, col):
         return self.image[row][col]
+    #gets the length (amount of rows) in a 2d array
+    def getLength(self):
+        return len(self.image)
+    #gets the width (amount of columns) in 2d array
+    def getWidth(self):
+        return len(self.image[0])
+    #Sets a specific pixel to a new color
     def setPixel(self, row, col, color):
         self.image[row][col] = color
+    #Replaces all the pixels with a new pixel color
     def replaceAllPixels(self, newColor):
         for row in range(len(self.image)):
             for col in range(len(self.image[row])):
                 self.image[row][col] = newColor
+    #Changes certain colored pixels to a new pixel
     def replacePixels(self, oldColor, newColor):
         for row in range(len(self.image)):
             for col in range(len(self.image[row])):
                 if self.image[row][col] == oldColor:
                     self.image[row][col] = newColor
-    def getColorAtSpot(self, row, col):
-        return self.image[row][col]
     
     
-
+#Class for creating a 2d array image with right colors from a png file
+#used for creating 2d sprites in aseprite or others and importing it
+#Can add it to scenes using addToScreen
 class pixelImage:
     
     @staticmethod
@@ -129,14 +141,18 @@ class pixelImage:
         return ansi_codes
         # return [ansi_codes[i*width:(i+1)*width] for i in range(height)]
         # return np.array(ansi_codes).reshape(img.size[1], img.size[0])
+    #Prints the ascii image into a 2d array for each pixelImage in the list
     def printOutImage(self, imageAnscii : list):
         # drawing = self.colors.tolist()  
         print('\033[0m\n'.join(''.join(row) for row in imageAnscii), end=reset)
     def printOutNumpy(self, imageAnscii : list):
         print(np.array(imageAnscii))
-    def getPixel(self, index) -> Pixel:
+    #returns the Pixel class of the image array at a specific index
+    #use this to modify the image using the Pixel class
+    def getPixel(self, index = 0) -> Pixel:
         return self.ImageAnscii[index]
-    def getPixelArray(self, index):
+    #Returns the 2d array of the pixel image at a certain index
+    def getPixelMatrix(self, index = 0):
         array : Pixel = self.ImageAnscii[index]
         return array.get()
     
@@ -167,7 +183,7 @@ dir_sep = '\\' if is_windows else '/'
 #             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
 # bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
 #             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
-# heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
+heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
 # healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
 #               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
 #               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
@@ -175,6 +191,6 @@ dir_sep = '\\' if is_windows else '/'
 
 # Human  = pixelImage(humanList, True)
 # Bullet = pixelImage(bulletList, True)
-# Heart  = pixelImage(heartList,True)
+Heart  = pixelImage(heartList,True)
 # Health = pixelImage(healthList,True)
 # Background = pixelImage(BackgroundList,False)

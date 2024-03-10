@@ -2,6 +2,9 @@
 from imports import *
 #imports colors
 from colors import *
+#importing image reader
+sys.path.insert(0, 'ImageReader')
+from ImageReader import *
 
 #initializing a clear command
 clear_command = 'cls' if os.name == 'nt' else 'clear'
@@ -150,6 +153,13 @@ def fillTrapezoid(screen, color, point1, point2, point3, point4):#x1, x2, y2, x3
         # print(f"{firstParts}\n{secondParts}")
         # time.sleep(2)
 
+#Draws an even parallogram with width (collumns) and length (rows) goes up and to the right
+def drawPG(screen, color, width, length, point):
+    point1 = (point[0], point[1])
+    point2 = (point[0] + length, point[1]+length)
+    point3 = (point[0] + width, point[1])
+    point4 = (point[0] + length + width, point[1] + length)
+    fillTrapezoid(screen, color, point1, point2, point3, point4)
 
 #Draws any size three sided triangle
 def drawTriangle(screen, color, point1, point2, point3):
@@ -202,7 +212,10 @@ def drawSetSquare(screen, color, center, length):
 # Running main
 clear()
 #initialize a screen size
-Scene = screen(35, 45, black)
+Scene = screen(350, 450, black)
+Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50, green)
+
+# printScreen(Scene))
 
 #make a couple Solid squares
 squareBlue = square(5, 5, black)
@@ -235,8 +248,10 @@ drawSetSquare(colorSquare, bright_yellow, (5, 5), 1)
 #Adding the multicolor square object to the scene
 addToScreen(Scene, colorSquare, 1, len(Scene) - len(colorSquare) -1)
 
+drawPG(Scene, blue, 10, -6, (16, 8))
+drawPG(Scene, yellow, 10, 6, (16, 8))
 
-
+addToScreen(Scene, Heart.getPixelArray(0), 0, 0)
 
 ##TESTING SHAPES AND LINE DRAWING
 # fillTrapezoid(Scene, bright_black, (2, 7), (4, 9), (7 ,7), (15, 20)) 

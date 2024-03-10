@@ -68,7 +68,31 @@ class MyKeyListener:
             if key in self.key_actions:
                 self.key_actions[key]()
         self.is_esc_pressed()
-        
+
+Key_Listener = MyKeyListener()
+Listener = keyboard.Listener(
+    on_press=Key_Listener.on_press,
+    on_release=Key_Listener.on_release)
+
+#Use to call the key listener set something equal to it to get the keyboard
+def startKeyboard():
+    Key_Listener = MyKeyListener()
+    Listener.start()
+    # Key_Listener = MyKeyListener()
+    # Listener = keyboard.Listener(
+    #     on_press=Key_Listener.on_press,
+    #     on_release=Key_Listener.on_release)
+    # Listener.start()
+    # return [key_listener, listener]
+
+#Stops the current keybard 
+def stopKeyboard():
+    Listener.stop()
+
+startKeyboard()
+#example
+# if Key_Listener.is_1_pressed():
+#     print("1")
 
 #when getting keyboard input type in:
     # key_listener = MyKeyListener()
