@@ -164,9 +164,8 @@ def drawPG(screen, color, width, length, point):
 #Draws any size three sided triangle
 def drawTriangle(screen, color, point1, point2, point3):
   drawLine(screen, color, point1, point2)
-  drawLine(screen, color, point2, point3)
+  drawLine(screen, color, point2, point3)   
   drawLine(screen, color, point1, point3)
-
 #Draws a square or rectangle
 def square(length, width, color = bright_yellow):
     color += "  " + reset
@@ -212,8 +211,8 @@ def drawSetSquare(screen, color, center, length):
 # Running main
 clear()
 #initialize a screen size
-Scene = screen(350, 450, black)
-Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50, green)
+# Scene = screen(350, 450, green)
+Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50)
 
 # printScreen(Scene))
 
@@ -251,7 +250,7 @@ addToScreen(Scene, colorSquare, 1, len(Scene) - len(colorSquare) -1)
 drawPG(Scene, blue, 10, -6, (16, 8))
 drawPG(Scene, yellow, 10, 6, (16, 8))
 
-addToScreen(Scene, Heart.getPixelArray(0), 0, 0)
+addToScreen(Scene, Heart.getPixelMatrix(0), 0, 0)
 
 ##TESTING SHAPES AND LINE DRAWING
 # fillTrapezoid(Scene, bright_black, (2, 7), (4, 9), (7 ,7), (15, 20)) 

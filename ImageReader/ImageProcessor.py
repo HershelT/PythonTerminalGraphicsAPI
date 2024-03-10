@@ -3,7 +3,9 @@
 from PIL import Image, ImageChops
 import os
 import re
-from AnsiiEscapeColors import *
+import copy
+# from AnsiiEscapeColors import *
+# from imports.py import *
 # from numpy import  array, reshape, asarray, ndarray
 import numpy as np
 
@@ -31,7 +33,7 @@ ansi_colors = generate_ansi_colors()
 #         file.write(f"{rgb[0]} {rgb[1]} {rgb[2]} Color\n")
 # Loop through each pixel in the image to get the rgb value
 pixel_to_ansicode = {}
-import copy
+
 class Pixel: 
     def __init__(self, image: list):
         self.image = image
@@ -109,38 +111,29 @@ class pixelImage:
         width, height = image.size
         return width, height
     def rgb_to_anscii(self, r, g, b):
-        def distance(c1, c2):
-            return sum((x1-x2)**2 for x1,x2 in zip(c1, c2))
-        rgb_color = (r, g, b)
-        # Find the index of the closest color in the ansi_colors list
-        closest_color = min(range(len(ansi_colors)), key=lambda index: distance(rgb_color, ansi_colors[index]))
-        # Return the ANSI color code
-        pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
-        return "\033[48;5;{}m".format(closest_color)
+        #Checks if r,g,b value in stored dictionary of all rgb values and there corresponding ascii value
+        #If it is not so, it calculates the ansi color closest to the rgb value, adds it to dictionary
+        #and returns it
+        if (r,g,b) not in pixel_to_ansicode:
+            def distance(c1, c2):
+                return sum((x1-x2)**2 for x1,x2 in zip(c1, c2))
+            rgb_color = (r, g, b)
+            # Find the index of the closest color in the ansi_colors list
+            closest_color = min(range(len(ansi_colors)), key=lambda index: distance(rgb_color, ansi_colors[index]))
+            # Return the ANSI color code
+            pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
+            return "\033[48;5;{}m".format(closest_color)
+        
+        return pixel_to_ansicode[r, g, b]
     def getPixelToAnscii(self, image, scaleRatio = False):
         # Convert the image to RGB if it's not already
         if image.mode != 'RGB':
             image = image.convert('RGB')
-        sizes = self.size(image)
-        ansi_codes = []
-        for x in range(sizes[1]):
-            row = []
-            for y in range(sizes[0]):
-                r, g, b = image.getpixel((y, x))
-                if (r,g,b) in pixel_to_ansicode:
-                    row.append(pixel_to_ansicode[(r,g,b)] + ' ')
-                    if scaleRatio:
-                        row.append(pixel_to_ansicode[(r,g,b)] + ' ')
-                else:
-                    row.append(self.rgb_to_anscii(*(r,g,b)) + ' ')
-                    if scaleRatio:
-                        row.append(self.rgb_to_anscii(*(r,g,b)) + ' ')
-            ansi_codes.append(row)
-        # ansi_codes = list(map(lambda pixel: (self.rgb_to_anscii(*pixel) + ' ') *(2 if scaleRatio else 1), pixels))
-        # Convert the list of ANSI codes to a 2D numpy array and return it
-        return ansi_codes
-        # return [ansi_codes[i*width:(i+1)*width] for i in range(height)]
-        # return np.array(ansi_codes).reshape(img.size[1], img.size[0])
+        #Map each pixel to a color from ascii
+        ansi_codes = list(map(lambda pixel: (self.rgb_to_anscii(*pixel) + '  '), image.getdata()))
+        # Convert the list of ANSI codes to a 2D numpy array and return it as a list
+        np2d = np.array(ansi_codes).reshape(image.size[1], image.size[0])
+        return np2d.tolist()
     #Prints the ascii image into a 2d array for each pixelImage in the list
     def printOutImage(self, imageAnscii : list):
         # drawing = self.colors.tolist()  
@@ -156,41 +149,31 @@ class pixelImage:
         array : Pixel = self.ImageAnscii[index]
         return array.get()
     
-
-# Convert the 2D array to a string
-
-
-
 # Check if the operating system is Windows
 is_windows = os.name == 'nt'
 dir_sep = '\\' if is_windows else '/'
 
-
-
-
-
 #declare all the images
-# humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human3.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human4.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human5.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human6.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human7.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human8.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human9.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human10.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
-# bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
-#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
+humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human3.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human4.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human5.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human6.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human7.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human8.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human9.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human10.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
+bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
+            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
 heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
-# healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
-#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
-#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
-# BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
-
-# Human  = pixelImage(humanList, True)
-# Bullet = pixelImage(bulletList, True)
+healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
+              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
+              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
+BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
+Human  = pixelImage(humanList, True)
+Bullet = pixelImage(bulletList, True)
 Heart  = pixelImage(heartList,True)
-# Health = pixelImage(healthList,True)
-# Background = pixelImage(BackgroundList,False)
+Health = pixelImage(healthList,True)
+Background = pixelImage(BackgroundList,False)
