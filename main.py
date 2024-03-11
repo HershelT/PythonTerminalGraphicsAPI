@@ -38,7 +38,7 @@ def printScreen(screen, clear = True):
 
     # Clear the buffer for the next frame
     buffer.close()
-    sys.stdout.write('\033[?25h')
+    sys.stdout.write('\033[?25h' + reset)
     sys.stdout.flush()
 
 #Add lines to a screen screen at bottom left corner of drawing with (x, y)
@@ -240,7 +240,7 @@ fillTrapezoid(Scene, bright_yellow, (5,11), (9, 15), (36, 15), (40, 11))
 #Creating a multicolor Square Object using the New Set size Triangle feature
 colorSquare = screen(11, 11)
 drawUpTriangle(colorSquare, bright_purple, (5, 5), 6)
-drawDownTriangle(colorSquare, green, (5, 5), 6)
+drawDownTriangle(colorSquare, rgb(23, 23, 23), (5, 5), 6)
 drawLeftTriangle(colorSquare, blue, (5, 5), 6)
 drawRightTriangle(colorSquare, red, (5, 5), 6)
 
@@ -281,6 +281,14 @@ addToScreen(Scene, Heart.getPixelImage(), len(Scene[0]) - Heart.getPixel(0).getW
 #print the screen
 clear()
 printScreen(Scene)
+
+while True:
+    colorSquare = rotateRight(colorSquare)
+    addToScreen(Scene, colorSquare, 1, len(Scene) - len(colorSquare) -1)
+    clear()
+    printScreen(Scene)
+    time.sleep(0.8)
+
 
 
 

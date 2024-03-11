@@ -88,7 +88,7 @@ class Pixel:
         self.image = list(map(list, zip(*self.image)))
     def flip(self):
         self.image = [list(reversed(row)) for row in self.image]
-    #Rotates the matrix by a set degrres between -360 and 360 degrees
+    #Rotates the matrix by a set degrees between -360 and 360 degrees
     def rotate(self, degrees):
         degrees %= 360  # Simplify degrees with modulo
 
