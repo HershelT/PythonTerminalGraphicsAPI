@@ -2,6 +2,8 @@
 from imports import *
 #imports colors
 from colors import *
+#importing my own matrix math file
+from matrix import *
 #importing image reader
 sys.path.insert(0, 'ImageReader')
 from ImageReader import *
@@ -211,7 +213,7 @@ def drawSetSquare(screen, color, center, length):
 # Running main
 clear()
 #initialize a screen size
-Scene = screen(350, 450, green)
+Scene = screen(35, 70, green)
 # Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50)
 
 # printScreen(Scene))
@@ -230,7 +232,7 @@ addToScreen(entrance, hollowSquare(18, 18, white, yellow), 1, 1)
 addToScreen(entrance, door, 6, 2)
 
 #Adding the entrance object the to scene
-addToScreen(Scene, entrance, 12, 13)
+addToScreen(Scene, flip(entrance), 12, 13)
 
 #Make filled 3d outlines under the door
 fillTrapezoid(Scene, bright_yellow, (5,11), (9, 15), (36, 15), (40, 11))
@@ -251,7 +253,9 @@ drawPG(Scene, blue, 10, -6, (16, 8))
 drawPG(Scene, yellow, 10, 6, (16, 8))
 
 #Testing loading images
-addToScreen(Scene, Heart.getPixelMatrix(0), 0, 0)
+Heart.getPixel(0).flip()
+# Heart.getPixel(0).transpose()
+addToScreen(Scene, Heart.getPixelImage(), len(Scene[0]) - Heart.getPixel(0).getWidth(), 0)
 
 # addToScreen(Scene, GameBoy.getPixelMatrix(0), 0, 0)
 
@@ -277,5 +281,8 @@ addToScreen(Scene, Heart.getPixelMatrix(0), 0, 0)
 #print the screen
 clear()
 printScreen(Scene)
+
+
+
 
 

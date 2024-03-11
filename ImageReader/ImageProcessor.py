@@ -65,21 +65,6 @@ pixel_to_ansicode = read_gpl_file()
 class Pixel: 
     def __init__(self, image: list):
         self.image = image
-    #Gets the 2d array representation of the image
-    def get(self):
-        return self.image
-    #returns a deepcopy of the 2d array
-    def getCopy(self, image):
-        return Pixel(copy.deepcopy(image))
-    #gets certain color of pixel at speicifc position
-    def getPixel(self, row, col):
-        return self.image[row][col]
-    #gets the length (amount of rows) in a 2d array
-    def getLength(self):
-        return len(self.image)
-    #gets the width (amount of columns) in 2d array
-    def getWidth(self):
-        return len(self.image[0])
     #Sets a specific pixel to a new color
     def setPixel(self, row, col, color):
         self.image[row][col] = color
@@ -94,8 +79,70 @@ class Pixel:
             for col in range(len(self.image[row])):
                 if self.image[row][col] == oldColor:
                     self.image[row][col] = newColor
+    #Makes the rows the columns and the columns the rows
+    def transpose(self):
+        self.image = list(map(list, zip(*self.image)))
+    def rotateRight(self):
+        self.image = list(map(list, zip(*self.image[::-1])))
+    def rotateLeft(self):
+        self.image = list(map(list, zip(*self.image)))
+    def flip(self):
+        self.image = [list(reversed(row)) for row in self.image]
+    #Rotates the matrix by a set degrres between -360 and 360 degrees
+    def rotate(self, degrees):
+        degrees %= 360  # Simplify degrees with modulo
+
+        rotations = {
+            0: lambda: self,  # Return self for 0 degrees
+            90: self.rotateLeft(),
+            180: lambda: (self.rotateRight(), self.rotateRight()),  # Return self after double rotateRight
+            270: self.rotateRight(),
+        }
+
+        try:
+            rotation_func = rotations[degrees % 360]
+        except KeyError:
+            raise ValueError(f"Invalid rotation angle. Angle must be a multiple of 90, 180, 270, or 360. Got {degrees}")
+
+        return rotation_func()
+
+    #Gets the 2d array representation of the image
+    def getImage(self):
+        return self.image
+    #returns a deepcopy of the 2d array
+    def getCopy(self, image):
+        return Pixel(copy.deepcopy(image))
+    #gets certain color of pixel at speicifc position
+    def getPixel(self, row, col):
+        return self.image[row][col]
+    #gets the length (amount of rows) in a 2d array
+    def getLength(self):
+        return len(self.image)
+    #gets the width (amount of columns) in 2d array
+    def getWidth(self):
+        return len(self.image[0])
     
     
+
+#Function for getting rgb values to asci code by giving parameters (r, g, b)
+def rgb(r, g, b):
+    #Checks if r,g,b value in stored dictionary of all rgb values and there corresponding ascii value
+    #If it is not so, it calculates the ansi color closest to the rgb value, adds it to dictionary
+    #and returns it
+    if (r,g,b) not in pixel_to_ansicode:
+        def distance(c1, c2):
+            return sum((x1-x2)**2 for x1,x2 in zip(c1, c2))
+        rgb_color = (r, g, b)
+        # Find the index of the closest color in the ansi_colors list
+        closest_color = min(range(len(ansi_colors)), key=lambda index: distance(rgb_color, ansi_colors[index]))
+        # Return the ANSI color code
+        pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
+        return "\033[48;5;{}m".format(closest_color)
+    return pixel_to_ansicode[(r, g, b)] 
+
+
+
+
 #Class for creating a 2d array image with right colors from a png file
 #used for creating 2d sprites in aseprite or others and importing it
 #Can add it to scenes using addToScreen
@@ -139,20 +186,7 @@ class pixelImage:
         width, height = image.size
         return width, height
     def rgb_to_anscii(self, r, g, b):
-        #Checks if r,g,b value in stored dictionary of all rgb values and there corresponding ascii value
-        #If it is not so, it calculates the ansi color closest to the rgb value, adds it to dictionary
-        #and returns it
-        if (r,g,b) not in pixel_to_ansicode:
-            def distance(c1, c2):
-                return sum((x1-x2)**2 for x1,x2 in zip(c1, c2))
-            rgb_color = (r, g, b)
-            # Find the index of the closest color in the ansi_colors list
-            closest_color = min(range(len(ansi_colors)), key=lambda index: distance(rgb_color, ansi_colors[index]))
-            # Return the ANSI color code
-            pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
-            return "\033[48;5;{}m".format(closest_color)
-        
-        return pixel_to_ansicode[(r, g, b)]
+        return rgb(r,g,b)
     def getPixelToAnscii(self, image):
         # Convert the image to RGB if it's not already
         if image.mode != 'RGB':
@@ -173,10 +207,12 @@ class pixelImage:
     def getPixel(self, index = 0) -> Pixel:
         return self.ImageAnscii[index]
     #Returns the 2d array of the pixel image at a certain index
-    def getPixelMatrix(self, index = 0):
+    def getPixelImage(self, index = 0):
         array : Pixel = self.ImageAnscii[index]
-        return array.get()
+        return array.getImage()
     
+
+
 
 
 #declare all the images
