@@ -49,17 +49,21 @@ def printScreen(screen, clear = True):
 #Add lines to a screen screen at bottom left corner of drawing with (x, y)
 def addToScreen(screen, obj, colIndex, rowIndex):
     #The pixels that are being drawn over when drawing new Image
-    drawnOver = []
-    for i, row in enumerate(obj):
-        overList = []
-        for j, str in enumerate(row):
-            overList.append(screen[len(screen) - (len(obj)+rowIndex)+i][colIndex+j])
-            screen[len(screen) - (len(obj)+rowIndex)+i][colIndex+j] = str
-        drawnOver.append(overList)
-    #Returns a list with the [drawnOver Image, the collumn it was at, and the row on the screen it was at]
-    #To replace drawn over area call this function by setting it equal to something
-    #Then say addToScreen(screen, something[0], something[1], something[2])
-    return [drawnOver, colIndex, rowIndex]
+    try:
+        drawnOver = []
+        for i, row in enumerate(obj):
+            overList = []
+            for j, str in enumerate(row):
+                overList.append(screen[len(screen) - (len(obj)+rowIndex)+i][colIndex+j])
+                screen[len(screen) - (len(obj)+rowIndex)+i][colIndex+j] = str
+            drawnOver.append(overList)
+        #Returns a list with the [drawnOver Image, the collumn it was at, and the row on the screen it was at]
+        #To replace drawn over area call this function by setting it equal to something
+        #Then say addToScreen(screen, something[0], something[1], something[2])
+        return [drawnOver, colIndex, rowIndex]
+    except IndexError:
+        raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
+        
 #Bresenhams line drawing lgorithm
 def bresenham(x1, y1, x2, y2):
   """

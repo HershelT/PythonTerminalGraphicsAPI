@@ -24,7 +24,7 @@ addToScreen(entrance, hollowSquare(18, 18, white, yellow), 1, 1)
 addToScreen(entrance, door, 6, 2)
 
 #Adding the entrance object the to scene
-addToScreen(Scene, flip(entrance), 12, 13)
+addToScreen(Scene, entrance, 12, 13)
 
 #Make filled 3d outlines under the door
 fillTrapezoid(Scene, bright_yellow, (5,11), (9, 15), (36, 15), (40, 11))
@@ -80,10 +80,14 @@ while True:
     colorSquare = rotateRight(colorSquare)
     for i in range(0,3):
         Heart.getPixel(0).rotateRight()
-    addToScreen(Scene, colorSquare, 1, len(Scene) - len(colorSquare) -1)
-    replace = addToScreen(Scene, Heart.getPixelImage(0), len(Scene[0]) - Heart.getPixel(0).getWidth()-(j%len(Scene[0])), 0)
-    clear()
+    replaceSquare = addToScreen(Scene, colorSquare, 1, (len(Scene) - len(colorSquare) - j)%len(Scene))
+    replaceSquare2 = addToScreen(Scene, flip(colorSquare), 15, (len(Scene) - len(colorSquare) - j*2-5)%len(Scene))
+    replaceHeart = addToScreen(Scene, Heart.getPixelImage(0), len(Scene[0]) - Heart.getPixel(0).getWidth()-(j%len(Scene[0])), 0)
+    # clear()
     printScreen(Scene)
-    addToScreen(Scene, replace[0], replace[1], replace[2])
-    time.sleep(0.8)
+    addToScreen(Scene, replaceHeart[0], replaceHeart[1], replaceHeart[2])
+    addToScreen(Scene, replaceSquare[0], replaceSquare[1], replaceSquare[2])
+    addToScreen(Scene, replaceSquare2[0], replaceSquare2[1], replaceSquare2[2])
+
+    time.sleep(0.2)
     j += 1
