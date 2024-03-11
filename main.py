@@ -73,8 +73,11 @@ drawPG(Scene, yellow, 10, 6, (16, 8))
 
 #print the screen
 drawRectangle(Scene, rgb(170, 223, 2), (20, 10), (30, 15))
-clear()
-printScreen(Scene)
+# clear()
+# printScreen(Scene)
+
+#TEST OF GRAPHICS ENGINE
+#FAlLING Blocks and ROLLING HEART
 j = 0
 while True:
     colorSquare = rotateRight(colorSquare)
@@ -85,6 +88,7 @@ while True:
     replaceHeart = addToScreen(Scene, Heart.getPixelImage(0), len(Scene[0]) - Heart.getPixel(0).getWidth()-(j%len(Scene[0])), 0)
     # clear()
     printScreen(Scene)
+    #Replacing the lines that were drawn over
     addToScreen(Scene, replaceHeart[0], replaceHeart[1], replaceHeart[2])
     addToScreen(Scene, replaceSquare[0], replaceSquare[1], replaceSquare[2])
     addToScreen(Scene, replaceSquare2[0], replaceSquare2[1], replaceSquare2[2])
