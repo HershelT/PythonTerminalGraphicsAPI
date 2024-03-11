@@ -9,6 +9,8 @@ from imports import *
 from colors import *
 #importing my own matrix math file
 from matrix import *
+#Imports rgb functions from rgb.py file to change colors
+from rgb import *
 #importing image reader
 sys.path.insert(0, 'ImageReader')
 from ImageReader import *

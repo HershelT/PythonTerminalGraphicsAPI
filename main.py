@@ -83,13 +83,17 @@ while True:
     colorSquare = rotateRight(colorSquare)
     for i in range(0,3):
         Heart.getPixel(0).rotateRight()
-    replaceSquare = addToScreen(Scene, colorSquare, 1, (len(Scene) - len(colorSquare) - j)%len(Scene))
-    replaceSquare2 = addToScreen(Scene, flip(colorSquare), 15, (len(Scene) - len(colorSquare) - j*2-5)%len(Scene))
+    #Adding vertically moving squares
+    replaceSquare = addToScreen(Scene, changeRGB(colorSquare, red, rgb(178, 123, 23)), 1, (len(Scene) - len(colorSquare) - j)%len(Scene))
+    replaceSquare2 = addToScreen(Scene, changeRGB(colorSquare, blue, rgb(65, 123, 56)), 15, (len(Scene) - len(colorSquare) - j*2-5)%len(Scene))
+    replaceSquare3 = addToScreen(Scene, flip(colorSquare), j%(len(Scene[0])- len(colorSquare[0])), j%(len(Scene)-len(colorSquare)))
+    
     replaceHeart = addToScreen(Scene, Heart.getPixelImage(0), len(Scene[0]) - Heart.getPixel(0).getWidth()-(j%len(Scene[0])), 0)
     # clear()
     printScreen(Scene)
     #Replacing the lines that were drawn over
     addToScreen(Scene, replaceHeart[0], replaceHeart[1], replaceHeart[2])
+    addToScreen(Scene, replaceSquare3[0], replaceSquare3[1], replaceSquare3[2])
     addToScreen(Scene, replaceSquare[0], replaceSquare[1], replaceSquare[2])
     addToScreen(Scene, replaceSquare2[0], replaceSquare2[1], replaceSquare2[2])
 
