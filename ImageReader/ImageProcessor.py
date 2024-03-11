@@ -1,13 +1,13 @@
-# Import the Pillow library
-# from PythonTerminalSprites import *
+# Import the Pillow library, and other python libraries
 from PIL import Image, ImageChops
 import os
 import re
 import copy
-# from AnsiiEscapeColors import *
-# from imports.py import *
-# from numpy import  array, reshape, asarray, ndarray
 import numpy as np
+
+# Check if the operating system is Windows
+is_windows = os.name == 'nt'
+dir_sep = '\\' if is_windows else '/'
 
 def generate_ansi_colors():
     basic_colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0),
@@ -20,19 +20,47 @@ def generate_ansi_colors():
 ansi_colors = generate_ansi_colors()
 # print(ansi_colors)
 
-# Open the .gpl file
-# Open the .gpl file
-# with open("ansi_colors.gpl", "w") as file:
-#     # Write the header
-#     file.write("GIMP Palette\n")
-#     file.write("Name: ANSI Colors\n")
-#     file.write("Columns: 4\n")
-#     file.write("#\n")
-#     # Write the colors
-#     for rgb in ansi_colors:
-#         file.write(f"{rgb[0]} {rgb[1]} {rgb[2]} Color\n")
-# Loop through each pixel in the image to get the rgb value
-pixel_to_ansicode = {}
+
+#Mapping function to make keys and values in a line
+def map_function(line):
+    # Read the keys and values
+    key, value = line.strip().split(":")
+    return key.strip(), value.strip()
+#reads the gpl_file to get the keys and values using a mapping function
+def read_gpl_file():
+    with open(f"ImageReader{dir_sep}ansi_dict.gpl", "r")as file:
+        # Skip the header lines
+        for _ in range(3):
+            next(file)
+        # Use the map function to read the keys and values
+        keys_and_values = dict(map(map_function, file))
+    return keys_and_values
+
+#write the pixel_to_ansicode dictionary values to a gpl file
+def write_gpl_file():
+    with open(f"ImageReader{dir_sep}ansi_dict.gpl", "w") as file:
+        # Write the header
+        file.write("pixel_to_ansicode = \n")
+        file.write("ANSI Colors dictionary\n")
+        file.write("Columns: 2\n")  
+        # Write the colors
+        for key, value in pixel_to_ansicode.items():    
+            file.write(f'{key} : {value}\n')
+
+#Creates a color pallete for aseprite on gpl file
+def create_color_palette():
+    with open("ansiDictionary.gpl", "w") as file:
+        # Write the header
+        file.write("GIMP Palette\n")
+        file.write("Name: ANSI Colors\n")
+        file.write("Columns: 4\n")
+        file.write("#\n")
+        # Write the colors
+        for rgb in ansi_colors:
+            file.write(f"{rgb[0]} {rgb[1]} {rgb[2]} Color\n")
+
+pixel_to_ansicode = read_gpl_file()
+# print(pixel_to_ansicode)
 
 class Pixel: 
     def __init__(self, image: list):
@@ -124,7 +152,7 @@ class pixelImage:
             pixel_to_ansicode[rgb_color] = "\033[48;5;{}m".format(closest_color)
             return "\033[48;5;{}m".format(closest_color)
         
-        return pixel_to_ansicode[r, g, b]
+        return pixel_to_ansicode[(r, g, b)]
     def getPixelToAnscii(self, image):
         # Convert the image to RGB if it's not already
         if image.mode != 'RGB':
@@ -149,9 +177,7 @@ class pixelImage:
         array : Pixel = self.ImageAnscii[index]
         return array.get()
     
-# Check if the operating system is Windows
-is_windows = os.name == 'nt'
-dir_sep = '\\' if is_windows else '/'
+
 
 #declare all the images
 humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
@@ -172,6 +198,8 @@ healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
 BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
+SlugThingList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}SlugThing1.png']
+GameBoyList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}GameBoy.png']
 
 # Create a new PixelImage object for each image in the list
 Human  = pixelImage(humanList)
@@ -179,3 +207,17 @@ Bullet = pixelImage(bulletList)
 Heart  = pixelImage(heartList)
 Health = pixelImage(healthList)
 Background = pixelImage(BackgroundList)
+SlugThing = pixelImage(SlugThingList)
+GameBoy = pixelImage(GameBoyList)
+
+
+# write_gpl_file()
+
+#Stores a file of all known pixel and asci codes, use this to write new one to save time 
+#on loading on later computers
+
+
+
+
+
+

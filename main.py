@@ -211,8 +211,8 @@ def drawSetSquare(screen, color, center, length):
 # Running main
 clear()
 #initialize a screen size
-# Scene = screen(350, 450, green)
-Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50)
+Scene = screen(350, 450, green)
+# Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50)
 
 # printScreen(Scene))
 
@@ -250,7 +250,10 @@ addToScreen(Scene, colorSquare, 1, len(Scene) - len(colorSquare) -1)
 drawPG(Scene, blue, 10, -6, (16, 8))
 drawPG(Scene, yellow, 10, 6, (16, 8))
 
+#Testing loading images
 addToScreen(Scene, Heart.getPixelMatrix(0), 0, 0)
+
+# addToScreen(Scene, GameBoy.getPixelMatrix(0), 0, 0)
 
 ##TESTING SHAPES AND LINE DRAWING
 # fillTrapezoid(Scene, bright_black, (2, 7), (4, 9), (7 ,7), (15, 20)) 
