@@ -88,6 +88,7 @@ changeAllRGB(Scene, green, white)
 replaceSquaresVertical = []
 replaceSquaresHorizontal = []
 colorSquare = square(1, 1, rgb(145, 132, 60))
+drawThickLine(Scene, "rainbow", (5,10), (10,20), 5 )
 while True:
     # colorSquare = rotateRight(colorSquare)
     # for i in range(0,3):

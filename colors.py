@@ -46,4 +46,7 @@ bright_lime = "\033[102m"
 bright_teal = "\033[104m"
 bright_pink = "\033[105m"
 
+#Rainbow colors
+rainbow = [red, green, yellow, blue, magenta, cyan, white]
+rainbow_bright = [bright_red, bright_orange, bright_yellow, bright_green, bright_blue, bright_purple]
 

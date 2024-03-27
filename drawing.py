@@ -230,7 +230,18 @@ def drawRectangle(screen, color, point1, point2):
 #Draws a set size square with bottom right corner being at center
 def drawSetSquare(screen, color, center, length):
     addToScreen(screen, square(length, length, color), center[0], center[1])
-
+#Draws a thick line with a thickness of your choosing
+def drawThickLine(screen, color, start,end, length):
+    count = 0
+    for x, y in bresenham(*start, *end):
+        if color == "rainbow":
+            addToScreen(screen, square(length, length, rainbow[count]), x, y)
+            count+=1
+            if count == len(rainbow):
+                count = 0
+        else:
+            addToScreen(screen, square(length, length, color), x, y)
+    
 
 
 
