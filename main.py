@@ -6,6 +6,7 @@ from drawing import *
 clear()
 #initialize a screen size
 Scene = screen(35, 50, green)
+LightsaberScene = screen(35, 50, black)
 # Scene = screen(Heart.getPixel(0).getLength()+50, Heart.getPixel(0).getWidth()+50)
 
 # printScreen(Scene))
@@ -84,11 +85,11 @@ randomNumbers = []
 ranges = 3
 for i in range(0, ranges):
     randomNumbers.append(random.randint(0, len(Scene[0])-len(colorSquare[0])))
-changeAllRGB(Scene, green, white)
+replaceRGB(Scene, green, purple)
 replaceSquaresVertical = []
 replaceSquaresHorizontal = []
 colorSquare = square(1, 1, rgb(145, 132, 60))
-drawThickLine(Scene, "rainbow", (5,10), (10,20), 5 )
+
 while True:
     # colorSquare = rotateRight(colorSquare)
     # for i in range(0,3):

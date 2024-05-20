@@ -1,3 +1,6 @@
+#ABOUT: This file contains functions that manipulate a matrix (the screen)
+
+
 #Transpose the matrix, meaning move the rows to collumns and collumns to rows
 def transpose(matrix):
     return list(map(list, zip(*matrix)))
@@ -9,8 +12,11 @@ def rotateRight(matrix):
 #Rotate the matrix to the left
 def rotateLeft(matrix):
     return list(map(list, zip(*matrix)))
-def flip(matrix):
+def mirror(matrix):
     return [list(reversed(row)) for row in matrix]
+def flip(matrix):
+    return [row for row in matrix[::-1]]
+
 #Rotate matrix by degrees from -360 and 360
 #TO do make it so can rotate any degree using draw line
 def rotate(matrix, degrees):

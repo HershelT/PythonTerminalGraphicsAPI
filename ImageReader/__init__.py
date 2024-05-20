@@ -4,8 +4,7 @@
 # when the package is imported
 
 # For example:
-# from .image_reader import ImageReader
-# from .image_writer import ImageWriter
-# from ImageReader.PythonTerminalSprites import *
+# Importin ImageProcessor module
 from ImageReader.ImageProcessor import *
-# from PythonTerminalSprites import *
+# Importing sprite sheet
+from ImageReader.sprites import *

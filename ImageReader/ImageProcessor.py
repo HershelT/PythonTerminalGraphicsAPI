@@ -67,18 +67,19 @@ class Pixel:
         self.image = image
     #Sets a specific pixel to a new color
     def setPixel(self, row, col, color):
-        self.image[row][col] = color
+        self.image[row][col] = color + "  " + "\033[0m"
     #Replaces all the pixels with a new pixel color
     def replaceAllPixels(self, newColor):
         for row in range(len(self.image)):
             for col in range(len(self.image[row])):
-                self.image[row][col] = newColor
+                self.image[row][col] = newColor + "  " + "\033[0m"
     #Changes certain colored pixels to a new pixel
     def replacePixels(self, oldColor, newColor):
         for row in range(len(self.image)):
             for col in range(len(self.image[row])):
-                if self.image[row][col] == oldColor:
-                    self.image[row][col] = newColor
+                if oldColor in self.image[row][col]:
+                    self.image[row][col] = newColor + "  " + "\033[0m"
+        return self.image
     #Makes the rows the columns and the columns the rows
     def transpose(self):
         self.image = list(map(list, zip(*self.image)))
@@ -147,7 +148,7 @@ def rgb(r, g, b):
 #used for creating 2d sprites in aseprite or others and importing it
 #Can add it to scenes using addToScreen
 class pixelImage:
-    
+
     @staticmethod
     def trim_image(img):
     # Convert the image to RGB if it's not already
@@ -169,13 +170,15 @@ class pixelImage:
             img = img.crop(bbox)
 
         return img
-    def __init__(self, img : list):
+    def __init__(self, img : list, trim = False):
         imageList = []
 
         self.ImageAnscii = []
         for image in img:
-            imageList.append(self.trim_image(Image.open(image)))
-            # imageList.append(Image.open(image))
+            if trim:
+                imageList.append(self.trim_image(Image.open(image)))
+            else:
+                imageList.append(Image.open(image))
         for rgb in imageList:
             pixel = self.getPixelToAnscii(rgb)
             self.ImageAnscii.append(Pixel(pixel))
@@ -216,35 +219,35 @@ class pixelImage:
 
 
 #declare all the images
-humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human3.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human4.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human5.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human6.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human7.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human8.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human9.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human10.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
-bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
-            f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
-heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
-healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
-              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
-              f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
-BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
-SlugThingList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}SlugThing1.png']
-GameBoyList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}GameBoy.png']
+# humanList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human1.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human2.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human3.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human4.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human5.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human6.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human7.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human8.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human9.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human10.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Human11.png']
+# bulletList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet1.png',
+#             f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Bullet2.png']
+# heartList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Heart.png']
+# healthList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health1.png',
+#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health2.png',
+#               f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Health3.png',]
+# BackgroundList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}Background.png']
+# SlugThingList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}SlugThing1.png']
+# GameBoyList = [f'ImageReader{dir_sep}PythonTerminalSprites{dir_sep}GameBoy.png']
 
 # Create a new PixelImage object for each image in the list
-Human  = pixelImage(humanList)
-Bullet = pixelImage(bulletList)
-Heart  = pixelImage(heartList)
-Health = pixelImage(healthList)
-Background = pixelImage(BackgroundList)
-SlugThing = pixelImage(SlugThingList)
-GameBoy = pixelImage(GameBoyList)
+# Human  = pixelImage(humanList)
+# Bullet = pixelImage(bulletList)
+# Heart  = pixelImage(heartList)
+# Health = pixelImage(healthList)
+# Background = pixelImage(BackgroundList)
+# SlugThing = pixelImage(SlugThingList)
+# GameBoy = pixelImage(GameBoyList)
 
 
 # write_gpl_file()

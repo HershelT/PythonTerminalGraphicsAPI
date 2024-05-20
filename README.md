@@ -15,9 +15,9 @@ Have not finished and Am still working rest of README IS temporary
 ## Installation
 To use the Python Terminal API, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-username/PythonTerminalAPI.git`
+1. Clone the repository: `git clone https://github.com/hershelt/PythonTerminalAPI.git`
 2. Install the required dependencies: `pip install -r requirements.txt`
-3. Import the API module in your Python script: `import terminalapi`
+3. Import the API module in your Python script: `from drawing import *`
 
 ## Usage
 To get started with the Python Terminal API, refer to the documentation and examples provided in the `examples` directory of this repository. The documentation covers the various functions and classes available in the API, along with usage instructions and code samples.

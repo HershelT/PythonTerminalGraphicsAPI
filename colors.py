@@ -1,4 +1,7 @@
 import re
+#ABOUT: This file contains colors for the text and the pixels
+
+
 #The reset and getting rid of colors 
 reset = "\033[0m"
 ansi_escape = re.compile(r'\033\[\d+m')
@@ -31,6 +34,8 @@ cyan = "\033[46m"
 white = "\033[47m"
 black = "\033[40m"
 purple = "\033[48;5;54m"
+grey = "\033[48;5;236m"
+silver = "\033[48;5;145m"
 #brigh colors for pixels (highlight)
 bright_black = "\033[100m"
 bright_red = "\033[101m"
@@ -48,5 +53,8 @@ bright_pink = "\033[105m"
 
 #Rainbow colors
 rainbow = [red, green, yellow, blue, magenta, cyan, white]
-rainbow_bright = [bright_red, bright_orange, bright_yellow, bright_green, bright_blue, bright_purple]
+rainbow_bright = [bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white]
 
+#Create a function to get the asci code value before a string by splitting after the m and returning the first value
+def getColorFromAnsi(string):
+    return string.split("m")[0] + "m"

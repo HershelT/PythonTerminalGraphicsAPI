@@ -2,6 +2,8 @@
 #### TO USE
 #CALL THE FUNCTION 'from drawing import *'#
 ### In a main.py file
+#ONLY IMPORT I NEED IS drawing.py
+#ABOUT: This file contains functions that draw shapes and lines on the screen
 
 #All import
 from imports import *
@@ -21,23 +23,28 @@ def clear():
     os.system(clear_command)
 
 #setting a screen size
-def screen(length, width, filling = purple):
+def screen(height, width, filling = purple):
     filling += "  " + reset
-    return [[filling for x in range(width)] for y in range(length)]
+    return [[filling for x in range(width)] for y in range(height)]
 
 #Printing Base Scene to the console
-def printScreen(screen, clear = True):
+def printScreenTest(screen, clear = True, hideCursor = True):
+    #Hide cursor
+    sys.stdout.write('\033[?25l')
+    sys.stdout.flush()
     # Create an off-screen buffer
     buffer = io.StringIO()
 
     for row in screen:
         # Write to the buffer instead of directly to the screen
         buffer.write(''.join(row) + '\n')
+        buffer.flush()
 
     if clear:
         sys.stdout.write('\033[?25l')
         # Move the cursor to the top of the terminal
         sys.stdout.write('\033[H\033[?25l')
+        sys.stdout.flush()
 
     # Swap the buffer with the screen
     sys.stdout.write(buffer.getvalue())
@@ -45,8 +52,66 @@ def printScreen(screen, clear = True):
 
     # Clear the buffer for the next frame
     buffer.close()
-    sys.stdout.write('\033[?25h' + reset)
+    #unhides cursor after printing
+    if not hideCursor:
+        sys.stdout.write('\033[?25h')
+        sys.stdout.flush()
+    # Ends it with a reset
+    sys.stdout.write(reset)
     sys.stdout.flush()
+
+def printScreen(screen, clear=True, hideCursor=True):
+  """Prints the screen to the terminal efficiently with reduced flicker.
+
+  Args:
+      screen: A list of lists representing the characters to be printed,
+              where each inner list represents a row.
+      clear: Whether to clear the screen before printing (default: True).
+      hideCursor: Whether to hide the cursor after printing (default: True).
+  """
+
+  # Hide cursor
+  sys.stdout.write('\033[?25l')
+  sys.stdout.flush()
+
+  # Create an off-screen buffer
+  buffer = []
+
+  # Clear screen if requested
+  if clear:
+    # Move the cursor to the top left corner
+    buffer.append('\033[H')
+    # Clear the entire screen (may not work perfectly on all terminals)
+    # buffer.append('\033[2J')
+
+  # Build the screen buffer with escape codes for positioning
+  for y, row in enumerate(screen):
+    # Move the cursor to the beginning of the desired row
+    buffer.append('\033[%d;1H' % (y + 1))  # Adjust row position (1-based)
+    # Truncate the row and add newline
+    buffer.append(''.join(row[:len(max(screen, key=len))]) + '\n')
+
+  # Combine and print the buffer in one go
+  sys.stdout.write(''.join(buffer))
+  sys.stdout.flush()
+
+  # Unhide cursor if requested
+  if not hideCursor:
+    sys.stdout.write('\033[?25h')
+    sys.stdout.flush()
+
+  # Reset terminal settings (optional)
+  sys.stdout.write(reset)  # You might need to define a "reset" string specific to your terminal
+  sys.stdout.flush()
+
+
+
+
+
+# Example usage
+
+
+
 
 #Add lines to a screen screen at bottom left corner of drawing with (x, y)
 def addToScreen(screen, obj, colIndex, rowIndex):
@@ -66,55 +131,171 @@ def addToScreen(screen, obj, colIndex, rowIndex):
         return [drawnOver, colIndex, rowIndex]
     except IndexError:
         raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
+
+#Get pixel range from screen with certain height and width
+def getFromScreen(screen, colIndex, rowIndex, height, width):
+    try:
+        return [row[colIndex:colIndex+width] for row in screen[len(screen) -(rowIndex+height):len(screen) - (rowIndex)]]
+    except IndexError:
+        raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
+
+
+#Add colors only on certain color pixels
+#Is less efficient because it has to add eahc pixel individually in order to check
+def addToScreenOnColor(screen, obj, onColor, colIndex, rowIndex):
+    # The pixels that are being drawn over when drawing new Image
+    try:
+        drawnOver = []
+        screenLength = len(screen)
+        objLength = len(obj)
+        onColor += "  " + reset
+        for i, row in enumerate(obj):
+            rowLength = len(row)
+            overList = screen[screenLength- (objLength+rowIndex)+i][colIndex:colIndex+rowLength]
+            drawnOver.append(overList)
+            for j, pixel in enumerate(row):
+                if screen[screenLength - (objLength+rowIndex)+i][colIndex+j] == onColor:
+                    screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel
+                    
+        return [drawnOver, colIndex, rowIndex]
+    except IndexError:
+        raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
+    
+#Add colors from object given that are from given color
+def addToScreenWithColor(screen, obj, withColor, colIndex, rowIndex):
+    # The pixels that are being drawn over when drawing new Image
+    try:
+        drawnOver = []
+        screenLength = len(screen)
+        objLength = len(obj)
+        withColor += "  " + reset
+        for i, row in enumerate(obj):
+            rowLength = len(row)
+            overList = screen[screenLength- (objLength+rowIndex)+i][colIndex:colIndex+rowLength]
+            drawnOver.append(overList)
+            for j, pixel in enumerate(row):
+                #checks if current pixel is color from obj that matches with color given
+                if pixel in withColor:
+                    screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel  
+        return [drawnOver, colIndex, rowIndex]
+    except IndexError:
+        raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
+
+#Add colors from the obj to the screen as long as its not the color that is specified
+def addToScreenWithoutColor(screen, obj, withoutColor, colIndex, rowIndex):
+    # The pixels that are being drawn over when drawing new Image
+    try:
+        drawnOver = []
+        screenLength = len(screen)
+        objLength = len(obj)
+        withoutColor += "  " + reset
+        for i, row in enumerate(obj):
+            rowLength = len(row)
+            overList = screen[screenLength- (objLength+rowIndex)+i][colIndex:colIndex+rowLength]
+            drawnOver.append(overList)
+            for j, pixel in enumerate(row):
+                #checks if current pixel is color from obj that matches with color given, then if so, skips
+                if  not (pixel in withoutColor):
+                    screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel
+                # else:
+                #     screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = black + "  " + reset
+        return [drawnOver, colIndex, rowIndex]
+    except IndexError:
+        raise ValueError(print(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}"))
+
+
+
+
+
+
+
+
 #Bresenhams line drawing lgorithm
 def bresenham(x1, y1, x2, y2):
-  """
-  Bresenham's line algorithm implementation in Python (improved)
+    dx = x2 - x1
+    dy = y2 - y1
 
-  Args:
-      x1: Starting x-coordinate
-      y1: Starting y-coordinate
-      x2: Ending x-coordinate
-      y2: Ending y-coordinate
+    x, y = x1, y1
+    eps = 0
 
-  Returns:
-      list: List of pixel coordinates (x, y) for the line
-  """
-  dx = x2 - x1
-  dy = y2 - y1
-
-  # Handle special cases (vertical and horizontal lines)
-  if dx == 0:
-    for y in range(min(y1, y2), max(y1, y2) + 1):
-      yield x1, y
-    return
-  elif dy == 0:
-    for x in range(min(x1, x2), max(x1, x2) + 1):
-      yield x, y1
-    return
-
-  # Steepness test for lines with slope between 0 and 1
-  if abs(dy) > abs(dx) + abs(dx // 2):
-    x1, y1, x2, y2 = y2, x2, y1, x1
-    dx, dy = dy, dx
-
-  # Use Bresenham's algorithm for non-special cases
-  sign_x = 1 if dx > 0 else -1
-  sign_y = 1 if dy > 0 else -1
-  dx = abs(dx)
-  dy = abs(dy)
-
-  p = 2 * dy - dx
-  x, y = x1, y1
-  yield x, y
-  for _ in range(dx):
-    if p >= 0:
-      y += sign_y
-      p += 2 * (dy - dx)
+    if dx > 0:
+        xi = 1
     else:
-      p += 2 * dy
-    x += sign_x
-    yield x, y
+        xi = -1
+        dx = -dx
+
+    if dy > 0:
+        yi = 1
+    else:
+        yi = -1
+        dy = -dy
+
+    if dx > dy:
+        while x != x2:
+            yield x, y
+            eps += dy
+            if (eps << 1) >= dx:
+                y += yi
+                eps -= dx
+            x += xi
+    else:
+        while y != y2:
+            yield x, y
+            eps += dx
+            if (eps << 1) >= dy:
+                x += xi
+                eps -= dy
+            y += yi
+
+    yield x2, y2
+# def bresenham(x1, y1, x2, y2):
+#   """
+#   Bresenham's line algorithm implementation in Python (improved)
+
+#   Args:
+#       x1: Starting x-coordinate
+#       y1: Starting y-coordinate
+#       x2: Ending x-coordinate
+#       y2: Ending y-coordinate
+
+#   Returns:
+#       list: List of pixel coordinates (x, y) for the line
+#   """
+#   dx = x2 - x1
+#   dy = y2 - y1
+
+#   # Handle special cases (vertical and horizontal lines)
+#   if dx == 0:
+#     for y in range(min(y1, y2), max(y1, y2) + 1):
+#       yield x1, y
+#     return
+#   elif dy == 0:
+#     for x in range(min(x1, x2), max(x1, x2) + 1):
+#       yield x, y1
+#     return
+
+#   # Steepness test for lines with slope between 0 and 1
+#   if abs(dy) > abs(dx) + abs(dx // 2):
+#     x1, y1, x2, y2 = y2, x2, y1, x1
+#     dx, dy = dy, dx
+
+#   # Use Bresenham's algorithm for non-special cases
+#   sign_x = 1 if dx > 0 else -1
+#   sign_y = 1 if dy > 0 else -1
+#   dx = abs(dx)
+#   dy = abs(dy)
+
+#   p = 2 * dy - dx
+#   x, y = x1, y1
+#   yield x, y
+#   for _ in range(dx):
+#     if p >= 0:
+#       y += sign_y
+#       p += 2 * (dy - dx)
+#     else:
+#       p += 2 * dy
+#     x += sign_x
+#     yield x, y
 
 
 #Checks if a slope is within 0 and 1
@@ -125,6 +306,17 @@ def is_steep(dx, dy):
 def drawLine(screen, color, point1, point2):
     for x, y in bresenham(*point1, *point2):
         addToScreen(screen, square(1, 1, color), x, y)
+
+#Draws a line on the screen using the algorithm with custom blocks fstored in a list
+def drawLineCustom(screen, point1, point2, blockObjects : list):
+    spot = 0
+    length = len(blockObjects)
+    for x, y in bresenham(*point1, *point2):
+        addToScreen(screen, blockObjects[spot%length], x, y)
+        if spot == length-1 and length > 1:
+            break
+        spot+=1
+
 
 #Create a parrallelogram
 def fillTrapezoid(screen, color, point1, point2, point3, point4):#x1, x2, y2, x3, y3, x4, y4):
@@ -227,9 +419,12 @@ def drawRectangle(screen, color, point1, point2):
     length = abs(point2[1] - point1[1])
     width = abs(point2[0] - point1[0])
     addToScreen(screen, square(length, width, color), min(point1[0], point2[0]), min(point1[1], point2[1]))
+
+
 #Draws a set size square with bottom right corner being at center
 def drawSetSquare(screen, color, center, length):
     addToScreen(screen, square(length, length, color), center[0], center[1])
+
 #Draws a thick line with a thickness of your choosing
 def drawThickLine(screen, color, start,end, length):
     count = 0
@@ -244,7 +439,39 @@ def drawThickLine(screen, color, start,end, length):
     
 
 
+#Get a scan of certain blocks and thickness depending on slop and thichness of line
+#can use blocks for rotation and other things, as well as creating cool animations like navigating over a world
+def getBlocks(object, point1, point2, height, width):
+    listOfBlocks = []
+    for x, y in bresenham(*point1, *point2):
+        listOfBlocks.append([x, y, getFromScreen(object, x, y, height, width)])
+    return listOfBlocks
 
+#Gets a scan of pixels from a certain area
+def scanArea(screen, point1, height, width):
+    return getFromScreen(screen, point1[0], point1[1], height, width)
+
+#Gets color from certain area
+def getColor(screen, point1):
+    return getFromScreen(screen, point1[0], point1[1], 1, 1)[0][0]
+
+#adds border on a certain scaned area
+def addBorderToArea(scene, point1, height, width, oldColor, newColor, ToScreen = True):
+    #Gets the area that the user wants to put a border around
+    scannedArea = scanArea(scene, point1, height, width)
+    #create a new scene that is 2 larger than the scanned areag
+    newScene = screen(len(scannedArea)+2, len(scannedArea[0])+2, rgb(1, 1, 1)) 
+    #add the scanned area to the new scene To be used for addBorder Function
+    addToScreen(newScene, scannedArea, 1, 1)
+    #adds the border to the scanned area that was just placed on newScene
+    addBorder(newScene, oldColor, newColor)
+    #Scans the newScene and gets the object with a new border
+    scanned = scanArea(newScene, (1, 1), height, width)
+    #Adds the new border to the original screen that user gave if ToScreen is True
+    if ToScreen:
+        addToScreen(scene, scanned, point1[0], point1[1])
+    #Returns the new screen with the border
+    return scanned
 
 
 
