@@ -60,6 +60,7 @@ def printScreenTest(screen, clear = True, hideCursor = True):
     sys.stdout.write(reset)
     sys.stdout.flush()
 
+
 def printScreen(screen, clear=True, hideCursor=True):
   """Prints the screen to the terminal efficiently with reduced flicker.
 

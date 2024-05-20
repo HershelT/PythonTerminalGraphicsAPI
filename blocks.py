@@ -1,11 +1,23 @@
 from drawing import *
 sys.path.insert(0, 'ImageReader')
 from keyboardListener import *
+backgroundColor = cyan
+
+#replacing all sprites to have same background color
+newBlack = toolsBig.getPixel(0)
+# newBlack.setPixel(0, 0, backgroundColor)
+colorNew = newBlack.getPixel(0, 0)
+newBlack.replacePixels(colorNew, backgroundColor)
+spriteSheet = newBlack.getImage()
+
+#Sets newBlack as the go to background color
+newBlack = newBlack.getPixel(0, 0)
+newBlack = getColorFromAnsi(newBlack)
 
 
 
 #initliaze a screen size
-backgroundColor = black   
+backgroundColor = newBlack
 pixelRatio = 16
 Scene = screen(pixelRatio*10, pixelRatio*14, backgroundColor)
 
@@ -31,11 +43,10 @@ SpritesTool = ["Pickaxe", "Sword", "Shovel", "Axe"]
 spriteDict = {}
 
 # toolsBig.getPixel(0).replacePixels(newBlack, backgroundColor)
-spriteSheet = toolsBig.getPixel(0)
-newBlack = toolsBig.getPixel(0).getPixel(0, 0)
-spriteSheet = spriteSheet.replacePixels(newBlack, backgroundColor)
+# spriteSheet = toolsBig.getPixel(0)
+# spriteSheet = spriteSheet.replacePixels(newBlack, backgroundColor)
 blocks = spriteSheet
-spritesBigTop = []
+spritesBigTop = ["Ninja"]
 SpriteBigTools = ["Sword", "Poke Bowl", "Shield"]
 SpritesBigBlocks = ["Grass"]
 spriteBigDict = {}
@@ -74,8 +85,8 @@ for i in range(0, len(SpritesTool)):
 
 #gets the black background color from asperite sprite sheet
 # newBlack = getColor(spriteDict[SpriteBigTools[2]], (0, 0))
-newBlack = getColorFromAnsi(newBlack)
-
+# print(f"{newBlack}Color:")
+# time.sleep(1)
 
 
 
@@ -94,7 +105,7 @@ for i, sprite in enumerate(spriteDict):
         addToScreenWithoutColor(Scene, spriteDict[sprite], rgb(0, 95, 0), j*pixelRatio + pixelRatio, start)
         addToScreenWithoutColor(Scene, spriteDict[sprite], rgb(0, 135, 0), j*pixelRatio + pixelRatio*2, start)
     else:
-        addToScreenWithoutColor(Scene, spriteDict[sprite], newBlack, j*pixelRatio, start)
+        addToScreenWithoutColor(Scene, spriteDict[sprite], red, j*pixelRatio, start)
     j+=1
 
 #Adds each sprite to the sprite list
@@ -142,7 +153,7 @@ sceneWidth = len(Scene[0])
 # addBorderToArea(Scene, (1, 1), sceneLength-1, sceneWidth-1, backgroundColor, red)
 
 # newBlack = rgb(0, 0, 0)
-print(f"{newBlack}Color:")
+# print(f"{newBlack}Color:")
 # time.sleep(1)
 addToScreenWithoutColor(Scene, spriteDict[SpriteBigTools[2]], newBlack, 16, 0)
 printScreen(Scene)
@@ -183,7 +194,7 @@ while not keys.check_keys():
         printScreen(Scene)
         time.sleep(.1)
         
-
+    # Placing the block, super crucial
     elif keys.is_q_pressed():
         if colorMode:
             # if not Stored == []:
@@ -239,6 +250,7 @@ while not keys.check_keys():
         keys.keys_pressed.discard(all)
     #changing color pallete
     if keys.is_p_pressed():
+        overwriteSpot = False
         mod = 7
         pallateStart+=1
         Pallete = palletes[pallateStart%2]
@@ -259,10 +271,15 @@ while not keys.check_keys():
         time.sleep(0.2)
     #Changes pallets to sprite blocks
     if keys.is_y_pressed() and colorMode:
+        if erase == True:
+            erase = False
+        overwriteSpot = False
         colorMode = False
         Pallete = palletes[2]
         mod = len(sprites)
-        # addToScreen(Scene, square(pixelRatio, pixelRatio, backgroundColor), c, r)
+        # Checks if not on background color. If not, then it will add the block to the screen
+        if not scanArea(Scene, (c, r), pixelRatio, pixelRatio) == square(pixelRatio, pixelRatio, backgroundColor):
+            addToScreen(Scene, Stored[0], c, r)
         addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
         printScreen(Scene)
         # printCurrentPos(r, c, currentColor, borderColor, erase )
@@ -274,7 +291,7 @@ while not keys.check_keys():
 
     #moving block around
     #Up and Down
-    if keys.is_w_pressed() and r < sceneLength - pixelRatio and not Stored == []: 
+    if keys.is_w_pressed() and r < sceneLength - pixelRatio and not Stored == []:
         if overwriteSpot == False:
             Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
         else:
@@ -282,13 +299,13 @@ while not keys.check_keys():
         addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         r += pixelRatio
         if scanArea(Scene, (c, r), pixelRatio, pixelRatio) == square(pixelRatio, pixelRatio, backgroundColor):
-            print("Black")
-            time.sleep(0.1)
+            # print("Black")
+            # time.sleep(0.1)
             Stored = addToScreen(Scene, Spot, c, r)
             overwriteSpot = False
         else:
-            print("Color!")
-            time.sleep(0.1)
+            # print("Color!")
+            # time.sleep(0.1)
             overwriteSpot = Spot
             Stored = addToScreenWithoutColor(Scene, Spot, newBlack, c, r)
         printScreen(Scene)
@@ -303,13 +320,13 @@ while not keys.check_keys():
         addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         r -= pixelRatio
         if scanArea(Scene, (c, r), pixelRatio, pixelRatio) == square(pixelRatio, pixelRatio, backgroundColor):
-            print("Black")
-            time.sleep(0.1)
+            # print("Black")
+            # time.sleep(0.1)
             Stored = addToScreen(Scene, Spot, c, r)
             overwriteSpot = False
         else:
-            print("Color!")
-            time.sleep(0.1)
+            # print("Color!")
+            # time.sleep(0.1)
             overwriteSpot = Spot
             Stored = addToScreenWithoutColor(Scene, Spot, newBlack, c, r)
         printScreen(Scene)
@@ -317,7 +334,7 @@ while not keys.check_keys():
         # time.sleep(.1)
         keys.keys_pressed.discard(all)
     #Left and Right
-    elif keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == []: 
+    elif keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == []:
         if overwriteSpot == False:
             Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
         else:
@@ -325,20 +342,20 @@ while not keys.check_keys():
         addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         c += pixelRatio
         if scanArea(Scene, (c, r), pixelRatio, pixelRatio) == square(pixelRatio, pixelRatio, backgroundColor):
-            print("Black")
-            time.sleep(0.1)
+            # print("Black")
+            # time.sleep(0.1)
             Stored = addToScreen(Scene, Spot, c, r)
             overwriteSpot = False
         else:
-            print("Color!")
-            time.sleep(0.1)
+            # print("Color!")
+            # time.sleep(0.1)
             overwriteSpot = Spot
             Stored = addToScreenWithoutColor(Scene, Spot, newBlack, c, r)
         printScreen(Scene)
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
         # time.sleep(.1)
         keys.keys_pressed.discard(all)
-    elif keys.is_a_pressed() and c > 0 and not Stored == []: 
+    elif keys.is_a_pressed() and c > 0 and not Stored == []:
         if overwriteSpot == False:
             Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
         else:
@@ -347,13 +364,13 @@ while not keys.check_keys():
         # r += 0
         c -= pixelRatio
         if scanArea(Scene, (c, r), pixelRatio, pixelRatio) == square(pixelRatio, pixelRatio, backgroundColor):
-            print("Black")
-            time.sleep(0.1)
+            # print("Black")
+            # time.sleep(0.1)
             Stored = addToScreen(Scene, Spot, c, r)
             overwriteSpot = False
         else:
-            print("Color!")
-            time.sleep(0.1)
+            # print("Color!")
+            # time.sleep(0.1)
             overwriteSpot = Spot
             Stored = addToScreenWithoutColor(Scene, Spot, newBlack, c, r)
         printScreen(Scene)
@@ -362,9 +379,9 @@ while not keys.check_keys():
         keys.keys_pressed.discard(all)
 
     #Rotates block
-    if keys.is_x_pressed() and not Stored == []:
+    if keys.is_x_pressed() and not Stored == [] and not erase:
         currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
-        addToScreen(Scene, rotate(currentBlock, 90), c, r)
+        addToScreen(Scene, rotate(currentBlock, 270), c, r)
         printScreen(Scene)
         time.sleep(.2)
 
@@ -391,14 +408,15 @@ while not keys.check_keys():
 
     #Erases block
     if keys.is_e_pressed() and not Stored == []:
-        addToScreen(Scene, Stored[0], c, r)
+        overwriteSpot = False
+        addToScreen(Scene, square(pixelRatio, pixelRatio, backgroundColor), c, r)
         borderingBackground = square(pixelRatio + 2, pixelRatio + 2, yellow)
         addToScreen(borderingBackground, square(pixelRatio, pixelRatio, backgroundColor), 1, 1)
         addBorderToColor(borderingBackground, yellow, backgroundColor, white)
         borderCreation = scanArea(borderingBackground, (1, 1), pixelRatio, pixelRatio)
         addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
         erase = True
-        Stored = [Stored[0], c, r]
+        Stored = [square(pixelRatio, pixelRatio, backgroundColor), c, r]
         printScreen(Scene)
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
         time.sleep(.1)
@@ -416,7 +434,7 @@ while not keys.check_keys():
         
 
     #changing colors with Pallete
-    elif keys.is_t_pressed():
+    elif keys.is_t_pressed() and not erase:
         rc+=1
         if colorMode:
             scaned = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
@@ -426,13 +444,15 @@ while not keys.check_keys():
             #Draws rgb if in colorMode not block sprites`
             addToScreen(Scene, colorScanned, c, r)
         else:
-            addToScreen(Scene, spriteDict[sprites[rc%mod]], c, r)
+            addToScreen(Scene, Stored[0], c, r)
+            addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
+            overwriteSpot = spriteDict[sprites[rc%mod]]
         printScreen(Scene)
         if not borderColor == defaultBorder and colorMode:
             borderColor = Pallete[rc%mod]
         # printCurrentPos(r, c, currentColor, borderColor, erase)
         time.sleep(.3)
-    elif keys.is_r_pressed():
+    elif keys.is_r_pressed() and not erase:
         rc-=1
         if colorMode:
             scaned = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
@@ -442,7 +462,10 @@ while not keys.check_keys():
             #Draws rgb if in colorMode not block sprites
             addToScreen(Scene, colorScanned, c, r)
         else:
-            addToScreen(Scene, spriteDict[sprites[rc%mod]], c, r)
+            addToScreen(Scene, Stored[0], c, r)
+            addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
+            overwriteSpot = spriteDict[sprites[rc%mod]]
+
         printScreen(Scene)
         if not borderColor == defaultBorder and colorMode:
             borderColor = Pallete[rc%mod]
