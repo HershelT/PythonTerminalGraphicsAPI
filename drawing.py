@@ -62,48 +62,55 @@ def printScreenTest(screen, clear = True, hideCursor = True):
 
 
 def printScreen(screen, clear=True, hideCursor=True):
-  """Prints the screen to the terminal efficiently with reduced flicker.
+    """Prints the screen to the terminal efficiently with reduced flicker.
 
-  Args:
-      screen: A list of lists representing the characters to be printed,
-              where each inner list represents a row.
-      clear: Whether to clear the screen before printing (default: True).
-      hideCursor: Whether to hide the cursor after printing (default: True).
-  """
+    Args:
+        screen: A list of lists representing the characters to be printed,
+                where each inner list represents a row.
+        clear: Whether to clear the screen before printing (default: True).
+        hideCursor: Whether to hide the cursor after printing (default: True).
+    """
 
-  # Hide cursor
-  sys.stdout.write('\033[?25l')
-  sys.stdout.flush()
-
-  # Create an off-screen buffer
-  buffer = []
-
-  # Clear screen if requested
-  if clear:
-    # Move the cursor to the top left corner
-    buffer.append('\033[H')
-    # Clear the entire screen (may not work perfectly on all terminals)
-    # buffer.append('\033[2J')
-
-  # Build the screen buffer with escape codes for positioning
-  for y, row in enumerate(screen):
-    # Move the cursor to the beginning of the desired row
-    buffer.append('\033[%d;1H' % (y + 1))  # Adjust row position (1-based)
-    # Truncate the row and add newline
-    buffer.append(''.join(row[:len(max(screen, key=len))]) + '\n')
-
-  # Combine and print the buffer in one go
-  sys.stdout.write(''.join(buffer))
-  sys.stdout.flush()
-
-  # Unhide cursor if requested
-  if not hideCursor:
-    sys.stdout.write('\033[?25h')
+    # Hide cursor
+    sys.stdout.write('\033[?25l')
     sys.stdout.flush()
 
-  # Reset terminal settings (optional)
-  sys.stdout.write(reset)  # You might need to define a "reset" string specific to your terminal
-  sys.stdout.flush()
+    # Create an off-screen buffer
+    # buffer = []
+
+    # # Clear screen if requested
+    # if clear:
+    #     # Move the cursor to the top left corner
+    #     buffer.append('\033[H')
+        # Clear the entire screen (may not work perfectly on all terminals)
+        # buffer.append('\033[2J')
+
+    # # Build the screen buffer with escape codes for positioning
+    # max_length = len(max(screen, key=len))
+    # for y, row in enumerate(screen):
+    #     # Move the cursor to the beginning of the desired row
+    #     buffer.append('\033[%d;1H' % (y + 1))  # Adjust row position (1-based)
+    #     # Truncate the row and add newline
+    #     buffer.append(''.join(row[:max_length]) + '\n')
+    
+    
+    # Build the screen buffer with escape codes for positioning
+    max_length = len(max(screen, key=len))
+    buffer = ['\033[%d;1H%s\n' % (y + 1, ''.join(row[:max_length]))
+            for y, row in enumerate(screen)]
+
+    # Combine and print the buffer in one go
+    sys.stdout.write(''.join(buffer))
+    sys.stdout.flush()
+
+    # Unhide cursor if requested
+    if not hideCursor:
+        sys.stdout.write('\033[?25h')
+        sys.stdout.flush()
+
+    # Reset terminal settings (optional)
+    sys.stdout.write(reset)  # You might need to define a "reset" string specific to your terminal
+    sys.stdout.flush()
 
 
 

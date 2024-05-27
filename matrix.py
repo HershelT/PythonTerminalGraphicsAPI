@@ -16,6 +16,8 @@ def mirror(matrix):
     return [list(reversed(row)) for row in matrix]
 def flip(matrix):
     return [row for row in matrix[::-1]]
+def mirror(matrix):
+    return [list(reversed(row)) for row in matrix]
 
 #Rotate matrix by degrees from -360 and 360
 #TO do make it so can rotate any degree using draw line
