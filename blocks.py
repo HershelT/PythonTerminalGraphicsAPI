@@ -457,6 +457,7 @@ while not keys.check_keys():
         border = []
         printScreen(Scene)
         borderColor = Pallete[rc%mod]
+        overwriteSpot = False
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
         time.sleep(.1)
     #adds border outline
@@ -464,6 +465,7 @@ while not keys.check_keys():
         printScreen(Scene)
         # addBorder(Scene, Pallete[rc%mod], grey)
         border = addBorderToArea(Scene, (c, r), pixelRatio, pixelRatio, Pallete[rc%mod], defaultBorder)
+        overwriteSpot = False
         # addToScreen(Scene, bordered, c, r)
         borderColor = defaultBorder
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
