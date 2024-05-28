@@ -1,7 +1,7 @@
 from drawing import *
 sys.path.insert(0, 'ImageReader')
 from keyboardListener import *
-backgroundColor = rgb(56, 42, 87)
+backgroundColor = rgb(98, 42, 87)
 # backgroundColor = black
 
 #replacing all sprites to have same background color
@@ -20,8 +20,8 @@ newBlack = getColorFromAnsi(newBlack)
 #initliaze a screen size
 backgroundColor = newBlack
 pixelRatio = 16
-height = 11
-width = 15
+height = 12
+width = 16
 scale = 1
 Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
 
@@ -241,11 +241,18 @@ while not keys.check_keys():
             
         else:
             if erase:
-                # Stored = [square(pixelRatio,pixelRatio, backgroundColor), c, r]
-                addToScreen(Scene, spriteDict[sprites[rc%mod]], c, r)
+                # Stored = [spriteDict[sprites[rc%mod]], c, r]
+                addToScreen(Scene, Stored[0], c, r)
+                addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
+                overwriteSpot = spriteDict[sprites[rc%mod]]
+                # Stored = [spriteDict[sprites[rc%mod]], c, r]
+                print(green + "Debuggin erase                       " + reset)
             else:
                 currentThing = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
                 Stored = [currentThing, c, r] 
+                
+                print(red +   "Failed                               " + reset)
+                # addToScreen(Scene, spriteDict[sprites[rc%mod]], c, r)
         if erase:
             erase = False 
         # if erase == True:
@@ -254,11 +261,13 @@ while not keys.check_keys():
         if not border == [] and colorMode:
             border = addBorderToArea(Scene, (c, r), pixelRatio, pixelRatio, Pallete[rc%mod], defaultBorder)
         Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
+
+        
         
         printScreen(Scene)
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
         
-        time.sleep(.05)
+        time.sleep(.1)
         keys.keys_pressed.discard(all)
 
     elif keys.is_o_pressed():
@@ -314,7 +323,7 @@ while not keys.check_keys():
         time.sleep(0.2)
     #Changes pallets to sprite blocks
     if keys.is_y_pressed() and colorMode or first:
-        first = False
+        
         if erase == True:
             erase = False
         overwriteSpot = False
@@ -327,7 +336,11 @@ while not keys.check_keys():
         if not scannedArea == square(pixelRatio, pixelRatio, backgroundColor): # or not scannedArea == palletSquare:
             addToScreen(Scene, Stored[0], c, r)
         addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
+        if first:
+            first = False
+        overwriteSpot = spriteDict[sprites[rc%mod]]
         printScreen(Scene)
+        
         # printCurrentPos(r, c, currentColor, borderColor, erase )
 
 
@@ -461,14 +474,25 @@ while not keys.check_keys():
     #Erases block
     if keys.is_e_pressed() and not Stored == []:
         overwriteSpot = False
+        # Erases background of scene in order to prepare the white outline
         addToScreen(Scene, square(pixelRatio, pixelRatio, backgroundColor), c, r)
+        #starts to create new scene to create a box with white outline
         borderingBackground = square(pixelRatio + 2, pixelRatio + 2, yellow)
         addToScreen(borderingBackground, square(pixelRatio, pixelRatio, backgroundColor), 1, 1)
         addBorderToColor(borderingBackground, yellow, backgroundColor, white)
+        # gets the box with white outline
         borderCreation = scanArea(borderingBackground, (1, 1), pixelRatio, pixelRatio)
+        #Restores background to orignal content
+        addToScreen(Scene, Stored[0], c, r)
+        #Adds the white outline to the scene
         addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
+        #Uses overwriteSpot to overwrite the moving block feature which scans current block to just take the white block
+        overwriteSpot = borderCreation
+        if erase == False:
+            Stored = [Stored[0], c, r]
+        else:
+            Stored = [square(pixelRatio, pixelRatio, backgroundColor), c, r]
         erase = True
-        Stored = [square(pixelRatio, pixelRatio, backgroundColor), c, r]
         printScreen(Scene)
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)
         time.sleep(.1)

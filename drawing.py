@@ -25,6 +25,7 @@ def clear():
 #setting a screen size
 def screen(height, width, filling = purple):
     filling += "  " + reset
+    #Creates a 2d array that acts as the screen
     return [[filling for x in range(width)] for y in range(height)]
 
 #Printing Base Scene to the console
