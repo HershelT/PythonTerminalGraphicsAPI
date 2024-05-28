@@ -1,7 +1,7 @@
 from drawing import *
 sys.path.insert(0, 'ImageReader')
 from keyboardListener import *
-backgroundColor = rgb(98, 42, 87)
+backgroundColor = rgb(0, 95, 135)
 # backgroundColor = black
 
 #replacing all sprites to have same background color
@@ -246,12 +246,11 @@ while not keys.check_keys():
                 addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
                 overwriteSpot = spriteDict[sprites[rc%mod]]
                 # Stored = [spriteDict[sprites[rc%mod]], c, r]
-                print(green + "Debuggin erase                       " + reset)
+                # print(green + "Debuggin erase                       " + reset)
             else:
                 currentThing = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
                 Stored = [currentThing, c, r] 
-                
-                print(red +   "Failed                               " + reset)
+                # print(red +   "Failed                               " + reset)
                 # addToScreen(Scene, spriteDict[sprites[rc%mod]], c, r)
         if erase:
             erase = False 
@@ -477,7 +476,7 @@ while not keys.check_keys():
     if keys.is_e_pressed() and not Stored == []:
         overwriteSpot = False
         # Erases background of scene in order to prepare the white outline
-        addToScreen(Scene, square(pixelRatio, pixelRatio, backgroundColor), c, r)
+        
         #starts to create new scene to create a box with white outline
         borderingBackground = square(pixelRatio + 2, pixelRatio + 2, yellow)
         addToScreen(borderingBackground, square(pixelRatio, pixelRatio, backgroundColor), 1, 1)
@@ -487,13 +486,20 @@ while not keys.check_keys():
         #Restores background to orignal content
         addToScreen(Scene, Stored[0], c, r)
         #Adds the white outline to the scene
-        addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
+        # addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
         #Uses overwriteSpot to overwrite the moving block feature which scans current block to just take the white block
         overwriteSpot = borderCreation
         if erase == False:
+            addToScreen(Scene, Stored[0], c, r)
+            # addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
             Stored = [Stored[0], c, r]
         else:
+            #If already in eraser mode and block is erased, then it will add background color to the scene
+            addToScreen(Scene, square(pixelRatio, pixelRatio, backgroundColor), c, r)
             Stored = [square(pixelRatio, pixelRatio, backgroundColor), c, r]
+        #Adds the white outline to the scene
+        addToScreenWithoutColor(Scene, borderCreation, backgroundColor, c, r)
+
         erase = True
         printScreen(Scene)
         # printCurrentPos(r, c, Pallete[rc%mod], borderColor, erase)

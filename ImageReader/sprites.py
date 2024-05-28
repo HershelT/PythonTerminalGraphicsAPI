@@ -10,5 +10,5 @@ blocksBig = pixelImage(blocksBig)
 toolsBig = [f'ImageReader{dir_sep}BlocksSprites{dir_sep}ToolsBig.png']
 toolsBig = pixelImage(toolsBig)
 
-backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}Background.png']
+backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundBlue.png']
 backgroundBig = pixelImage(backgroundBig)
