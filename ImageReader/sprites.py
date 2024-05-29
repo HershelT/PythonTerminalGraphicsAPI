@@ -12,3 +12,6 @@ toolsBig = pixelImage(toolsBig)
 
 backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundBlue.png']
 backgroundBig = pixelImage(backgroundBig)
+
+numbers = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Numbers.png']
+numbers = pixelImage(numbers)
