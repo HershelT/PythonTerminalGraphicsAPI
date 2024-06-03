@@ -10,7 +10,9 @@ blocksBig = pixelImage(blocksBig)
 toolsBig = [f'ImageReader{dir_sep}BlocksSprites{dir_sep}ToolsBig.png']
 toolsBig = pixelImage(toolsBig)
 
-backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundBlue.png']
+backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundBlue.png', 
+                  f'ImageReader{dir_sep}BackgroundSprites{dir_sep}Background.png',
+                    f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundTile.png']
 backgroundBig = pixelImage(backgroundBig)
 
 numbers = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Numbers.png']

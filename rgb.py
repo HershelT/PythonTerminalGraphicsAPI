@@ -70,4 +70,14 @@ def addBorder(object, oldColor, newColor):
                     object[i][j] = newColor + "  " + reset
     return object
 
+
+#Adds a border to the perimeter of the object without checking for neighbors
+#Useful for adding a border to the perimeter of an object (Best border function)
+def addPerimeter(object, borderColor):
+    for i, row in enumerate(object):
+        for j, col in enumerate(row):
+            if i == 0 or i == len(object)-1 or j == 0 or j == len(object[0])-1:
+                object[i][j] = borderColor + "  " + reset
+    return object
+
     

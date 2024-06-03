@@ -1,14 +1,15 @@
 from drawing import *
 sys.path.insert(0, 'ImageReader')
 from keyboardListener import *
-backgroundColor = rgb(0, 95, 135)
+backgroundColor = rgb(0, 175, 255)
 # backgroundColor = black
 
 #replacing all sprites to have same background color
-newBlack = toolsBig.getPixel(0)
-colorNew = newBlack.getPixel(0, 0)
-newBlack.replacePixels(colorNew, backgroundColor)
-spriteSheet = newBlack.getImage()
+chooseBackgroundIndex = 2
+newBlack = toolsBig.getPixel(0); replacePixel = backgroundBig.getPixel(chooseBackgroundIndex)
+colorNew = newBlack.getPixel(0, 0); newReplace = replacePixel.getPixel(0, 0)
+newBlack.replacePixels(colorNew, backgroundColor); replacePixel.replacePixels(newReplace, backgroundColor)
+spriteSheet = newBlack.getImage(); backgroundBig = replacePixel.getImage()
 
 #Sets newBlack as the go to background color
 newBlack = newBlack.getPixel(0, 0)
@@ -19,8 +20,8 @@ newBlack = getColorFromAnsi(newBlack)
 #initliaze a screen size
 backgroundColor = newBlack
 pixelRatio = 16
-height = 12
-width = 16
+height = 14*1
+width = 22*1
 scale = 1
 Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
 
@@ -49,15 +50,7 @@ numbersDict = {}
 for i in range(0, 11):
     numbersDict[i] = scanArea(numbers, (i*numbersWidth, 0),numbersHeight, numbersWidth)
 
-#creating function to add numbers to screen starting from any area
-def addNumToScreen(Scene, num, col, row):
-    stringNum = str(num)
-    listOfReplacement = []
-    for char in stringNum:
-        #adds all the places that were drawn over
-        listOfReplacement.append(addToScreenWithoutColor(Scene, numbersDict[int(char)], newBlack, col, row)[0])
-        col += numbersWidth
-    return [listOfReplacement, col, row]
+
 
 
 
@@ -72,8 +65,8 @@ spriteDict = {}
 #Adding sprites as new ones get drawn
 blocks = spriteSheet
 spritesBigTop = ["Ninja", "Ninja Crouch", "Bow Staff Ninja"]
-SpriteBigTools = ["Sword", "Poke Bowl", "Shield"]
-SpritesBigBlocks = ["Grass", "Dirt", "Grass Connector", "Window","Stone"]
+SpriteBigTools = ["Sword", "Poke Bowl", "Portal", "Small Weapons"]
+SpritesBigBlocks = ["Grass", "Dirt", "Grass Connector", "Window","Stone", "Iron Ore", "Diamond Ore"]
 spriteBigDict = {}
 
 
@@ -108,7 +101,51 @@ for i in range(0, len(spritesBottom)):
 # print(f"{newBlack}Color:")
 # time.sleep(1)
 
-addToScreen(Scene, backgroundBig.getPixelImage(0), 0, 0)
+
+
+
+
+#Defining starting point for the screen
+lastPoints = 0
+points = 0
+#creating function to add numbers to screen starting from any area
+def addNumToScreen(Scene, num, col, row):
+    stringNum = str(num)
+    listOfReplacementNums = []
+    for char in stringNum:
+        #adds all the places that were drawn over
+        listOfReplacementNums.append(addToScreenWithoutColor(Scene, numbersDict[int(char)], newBlack, col, row)[0])
+        col += numbersWidth
+    return [listOfReplacementNums, col, row]
+
+def calculateScore(scannedArea):
+    if scannedArea in spriteDict.values():
+        return 100
+    else:
+        return 0
+    
+
+#ITem Size
+itemHeight = 16
+itemWidth = 16
+
+
+Inventory = ["Small Weapons", "Grass"]
+lastInventory = ["Small Weapons", "Grass"]
+
+#Creating a function to display inventory
+def displayInventory(Scene, inventory : list, col, row):
+    listofReplacementItems = []
+    for item in inventory:
+        listofReplacementItems.append(addToScreenWithoutColor(Scene, addPerimeter(spriteDict[item], green), newBlack, col, row)[0])
+        col += itemWidth
+    return [listofReplacementItems, col, row]
+
+InventoryDrawnOver = displayInventory(Scene, Inventory, 0, len(Scene) - itemHeight)
+
+
+
+addToScreen(Scene, backgroundBig, 0, 0)
 numDrawnOver = addNumToScreen(Scene, 0, 0, 0)
 #create dictionary of length of spriteDict and set each sprite to a number
 MapMaker = dict()
@@ -135,6 +172,11 @@ if colorMode:
     mod = len(Pallete)
 else:
     mod = len(sprites)
+
+
+
+
+
 
 
 
@@ -189,9 +231,7 @@ def printCurrentPos(row = r, col = c, color = Pallete[rc%mod], borderColor = Pal
           "Eraser: ", erase, "  "*10, "\n", flush = True)
 
 first = True
-
-lastPoints = 0
-points = 0
+inventoryChange = False
 
 # Start of engine
 while not keys.check_keys():
@@ -204,7 +244,38 @@ while not keys.check_keys():
         numDrawnOver = addNumToScreen(Scene, points, 0, 0)
         printScreen(Scene)
         lastPoints = points
+    #Inventory updates
+    if lastInventory != Inventory or inventoryChange:
+        for i, sprite in enumerate(InventoryDrawnOver[0]):
+            #Replaces what inventory drew over before
+            addToScreen(Scene, sprite, i*itemWidth, sceneLength - itemHeight)
+        #adds new inventory to screen
+        InventoryDrawnOver = displayInventory(Scene, Inventory, 0, len(Scene) - itemHeight)
+        printScreen(Scene)
+        lastInventory = Inventory
+        inventoryChange = False
     
+    if keys.is_j_pressed():
+        Inventory.append("Iron Ore")
+        inventoryChange = True
+        time.sleep(.1)
+        keys.keys_pressed.discard(all)
+
+    if keys.is_u_pressed():
+        print(f"{purple}Inventory: {Inventory}{reset}")
+        time.sleep(.1)
+        keys.keys_pressed.discard(all)
+
+    if keys.is_k_pressed():
+        if Inventory != []:
+            Inventory.pop()
+            inventoryChange = True
+        time.sleep(.1)
+        keys.keys_pressed.discard(all)
+
+
+
+
     #Clears the screen
     if keys.is_c_pressed():
         if not Stored == []:
@@ -426,7 +497,7 @@ while not keys.check_keys():
 
         erase = True
         printScreen(Scene)
-        time.sleep(.05)
+        time.sleep(.08)
 
     #changing colors with Pallete
     elif keys.is_t_pressed() and not erase:
