@@ -36,6 +36,20 @@ black = "\033[40m"
 purple = "\033[48;5;54m"
 grey = "\033[48;5;236m"
 silver = "\033[48;5;145m"
+colorsDict = {
+    0 : black,
+    1 : red,
+    2 : green,
+    3 : yellow,
+    4 : blue,
+    5 : magenta,
+    6 : cyan,
+    7 : white,
+    8 : purple,
+    9 : grey,
+    10 : silver,
+    'r' : reset
+}
 #brigh colors for pixels (highlight)
 bright_black = "\033[100m"
 bright_red = "\033[101m"
@@ -50,6 +64,22 @@ bright_orange = "\033[101m"
 bright_lime = "\033[102m"
 bright_teal = "\033[104m"
 bright_pink = "\033[105m"
+colorsBrightDict = {
+    0 : bright_black,
+    1 : bright_red,
+    2 : bright_green,
+    3 : bright_yellow,
+    4 : bright_blue,
+    5 : bright_magenta,
+    6 : bright_cyan,
+    7 : bright_white,
+    8 : bright_purple,
+    9 : bright_orange,
+    10 : bright_lime,
+    11 : bright_teal,
+    12 : bright_pink,
+    'r' : reset
+}
 
 #Rainbow colors
 rainbow = [red, green, yellow, blue, magenta, cyan, white]

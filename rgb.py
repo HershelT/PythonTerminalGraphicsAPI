@@ -26,7 +26,7 @@ def changeRGB(object, oldRGB, newRGB):
     newObject =  [["0" for x in range(len(object[0]))] for y in range(len(object))]
     for i, row in enumerate(object):
         for j, col in enumerate(row):
-            if object[i][j] == oldRGB + "  " + reset:
+            if object[i][j] == oldRGB + "  " + reset or oldRGB in object[i][j]:
                 newObject[i][j]= newRGB + "  " + reset
             else:
                 newObject[i][j] = object[i][j]
@@ -36,8 +36,9 @@ def changeRGB(object, oldRGB, newRGB):
 def replaceRGB(object, oldRGB, newRGB):
     for i, row in enumerate(object):
         for j, col in enumerate(row):
-            if object[i][j] == oldRGB + "  " + reset:
+            if object[i][j] == oldRGB + "  " + reset or oldRGB in object[i][j]:
                 object[i][j] = newRGB + "  " + reset
+    return object
 
 #Checks if a color is neighboring a certain color and changes it to another color
 def addBorderToColor(object, neighbor, oldColor, newColor):

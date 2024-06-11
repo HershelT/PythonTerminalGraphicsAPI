@@ -114,7 +114,7 @@ class Pixel:
     def getCopy(self, image):
         return Pixel(copy.deepcopy(image))
     #gets certain color of pixel at speicifc position
-    def getPixel(self, row, col):
+    def getPixel(self, col, row):
         return self.image[row][col]
     #gets the length (amount of rows) in a 2d array
     def getLength(self):
@@ -214,6 +214,42 @@ class pixelImage:
         array : Pixel = self.ImageAnscii[index]
         return array.getImage()
     
+
+
+# Save the scene by writing it to a file that can be looked at later 
+#create that function
+def saveScene(Scene, fileName = "Scene.txt", is2d = True):
+    # fileName = "Scene.txt"
+    with open(fileName, "w") as file:
+        if is2d:
+            for row in Scene:
+                for col in row:
+                    # Seperate the characters by a * so that they can be split later
+                    file.write(col + "*")
+                file.write("\n")
+        else:
+            for col in Scene:
+                file.write(col + "*")
+    print(f"\033[42m Scene saved to {fileName} \033[0m")
+
+#Get the scene from the file that was saved
+def getScene(fileName = "Scene.txt"):
+    # fileName = "Scene.txt"
+    Scene = []
+    with open(fileName, "r") as file:
+        for line in file:
+            # Split off each charcter from the * and append it to the Scene and get the whole line as a list of elements split off by *
+            Scene.append(line.strip().split("*")[:-1])
+    return Scene
+
+
+
+
+
+
+
+
+
 
 
 

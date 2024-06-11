@@ -6,6 +6,7 @@ backgroundColor = rgb(0, 175, 255)
 
 #replacing all sprites to have same background color
 chooseBackgroundIndex = 2
+backgrounds = backgroundBig
 newBlack = toolsBig.getPixel(0); replacePixel = backgroundBig.getPixel(chooseBackgroundIndex)
 colorNew = newBlack.getPixel(0, 0); newReplace = replacePixel.getPixel(0, 0)
 newBlack.replacePixels(colorNew, backgroundColor); replacePixel.replacePixels(newReplace, backgroundColor)
@@ -17,13 +18,42 @@ newBlack = getColorFromAnsi(newBlack)
 
 
 
+#Defining starting point for the screen
+lastPoints = 0
+points = 0
+
 #initliaze a screen size
 backgroundColor = newBlack
 pixelRatio = 16
-height = 14*1
-width = 22*1
+height = int(14*1)
+width = int(22*1)
 scale = 1
-Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
+#initliaze a inventory
+#ITem perimeter color
+inventoryPerimeterColor = white
+Inventory = ["Diamond Pickaxe"]
+lastInventory = Inventory
+#check if Scene.txt exists and if it does, then it will load the scene
+if os.path.exists("Scene.txt"):
+    Scene = getScene("Scene.txt")
+    Inventory = getScene("Inventory.txt")[0]
+    points = getScene("Points.txt")[0]
+    # InventoryDrawnOver = getScene("Points")[1]
+    points = int(points[0])
+
+    # print(f"{yellow}Inventory: {Inventory} {reset}")
+    # print(f"{yellow}Points: {points} {reset}")
+    # print(isinstance(Inventory, list))
+    # time.sleep(0.25)
+
+else:
+    # print(f"{blue} New Game {reset}")
+    Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
+    addToScreen(Scene, backgroundBig, 0, 0)
+    # InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
+    # time.sleep(0.25)
+sceneLength = len(Scene)
+sceneWidth = len(Scene[0])
 
 
 
@@ -50,6 +80,24 @@ numbersDict = {}
 for i in range(0, 11):
     numbersDict[i] = scanArea(numbers, (i*numbersWidth, 0),numbersHeight, numbersWidth)
 
+replace = letters.getPixel()
+replacePixel = replace.getPixel(0, 0)
+replace.replacePixels(replacePixel, backgroundColor)
+
+letters = replace.getImage()
+lettersHeight = 9
+lettersWidth = 7
+lettersDict = {}
+for i in range(0, 26):
+    lettersDict[chr(i+65)] = scanArea(letters, (i*lettersWidth, 0), lettersHeight, lettersWidth)
+lettersDict[" "] = square(lettersHeight, lettersWidth, backgroundColor)
+lettersDict["?"] = scanArea(letters, (26*lettersWidth, 0), lettersHeight, lettersWidth)
+lettersDict["."] = scanArea(letters, (27*lettersWidth, 0), lettersHeight, lettersWidth)
+lettersDict[":"] = scanArea(letters, (28*lettersWidth, 0), lettersHeight, lettersWidth)
+lettersDict["!"] = scanArea(letters, (29*lettersWidth, 0), lettersHeight, lettersWidth)
+lettersDict["'"] = scanArea(letters, (30*lettersWidth, 0), lettersHeight, lettersWidth)
+
+
 
 
 
@@ -66,8 +114,46 @@ spriteDict = {}
 blocks = spriteSheet
 spritesBigTop = ["Ninja", "Ninja Crouch", "Bow Staff Ninja"]
 SpriteBigTools = ["Sword", "Poke Bowl", "Portal", "Small Weapons"]
-SpritesBigBlocks = ["Grass", "Dirt", "Grass Connector", "Window","Stone", "Iron Ore", "Diamond Ore"]
+SpritesBigBlocks = ["Grass", "Dirt", "Grass Connector", "Window","Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore", 
+                    "Brick","Obsidian","Nether Portal"]
 spriteBigDict = {}
+
+#Setting up the 8x8 sprite sheet for items in game
+itemHeight = 8
+itemWidth = 8
+#Getting the 8x8 sprite sheet for items in game
+items = itemsTools.getPixel(0)
+replaceItemPixel = items.getPixel(items.getWidth()-1, 0)
+items.replacePixels(replaceItemPixel, backgroundColor)
+items = items.getImage()
+itemsDict = {}
+#Naming items in game
+itemsNames = []
+
+
+
+ItemsDecorations = ["Window"]
+ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian"]
+ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore"]
+ItemsTools = ["Diamond Pickaxe", "Wood Sword", "Diamond Pic", "Flint 'n Steel"]
+
+#Scanning the 8x8 sprite sheet and setting each sprite to a dict value
+#Corresponding to the sprite name from itemsNames
+for i in range(0, len(ItemsDecorations)):
+    itemsNames.append(ItemsDecorations[i])
+    itemsDict[ItemsDecorations[i]] = scanArea(items, (i*itemWidth, 3*itemHeight), itemHeight, itemWidth)
+
+for i in range(0, len(ItemsBlocks)):
+    itemsNames.append(ItemsBlocks[i])
+    itemsDict[ItemsBlocks[i]] = scanArea(items, (i*itemWidth, 2*itemHeight), itemHeight, itemWidth)
+
+for i in range(0, len(ItemsOres)):
+    itemsNames.append(ItemsOres[i])
+    itemsDict[ItemsOres[i]] = scanArea(items, (i*itemWidth, itemHeight), itemHeight, itemWidth)
+
+for i in range(0, len(ItemsTools)):
+    itemsNames.append(ItemsTools[i])
+    itemsDict[ItemsTools[i]] = scanArea(items, (i*itemWidth, 0), itemHeight, itemWidth)
 
 
 #Setting up sprites for the big sprite sheet
@@ -94,7 +180,10 @@ for i in range(0, len(spritesBottom)):
     scanned = scanArea(blocks, (i*pixelRatio, 0), pixelRatio, pixelRatio)
     spriteDict[spritesBottom[i]] = scanned
 
-
+sprites = []
+#Adds each sprite to the sprite list
+for i, sprite in enumerate(spriteDict):
+    sprites.append(sprite)
 
 #gets the black background color from asperite sprite sheet
 # newBlack = getColor(spriteDict[SpriteBigTools[2]], (0, 0))
@@ -105,47 +194,120 @@ for i in range(0, len(spritesBottom)):
 
 
 
-#Defining starting point for the screen
-lastPoints = 0
-points = 0
+
 #creating function to add numbers to screen starting from any area
 def addNumToScreen(Scene, num, col, row):
     stringNum = str(num)
     listOfReplacementNums = []
+    ColRow = []
     for char in stringNum:
         #adds all the places that were drawn over
+        ColRow.append([col, row])
         listOfReplacementNums.append(addToScreenWithoutColor(Scene, numbersDict[int(char)], newBlack, col, row)[0])
         col += numbersWidth
-    return [listOfReplacementNums, col, row]
+    return [listOfReplacementNums, ColRow]
 
+#create function to add letters to screen starting from any area
+spriteBlack = getColorFromAnsi(spriteBlack)
+# print(f"{spriteBlack}Color:\n\n\n\n")
+# time.sleep(5)
+
+#A function that takes a string and adds the correspinding sprite letters to screen
+#Example "{1}Hello World{r}" prints a red "Hello World" with a reset color at the end of the string
+def addLetterToScreen(Scene, letter : str, color, col, row):
+    foundColor = 3
+    listOfReplacementLetters = []
+    ColRow = []
+    colStart = col
+    originalColor = color
+    isReset = False
+    for i, char in enumerate(letter):
+        #adds all the places that were drawn over
+        if foundColor < 3:
+            # color = originalColor
+            foundColor += 1
+            continue
+        if isReset:
+            color = originalColor
+            isReset = False
+        if char.upper() == "I":
+            col -= lettersWidth - int(lettersWidth/2) - 1
+        if char == "\n":
+            row -= lettersHeight + 1
+            col = colStart - lettersWidth - 1
+        else:
+            ColRow.append([col, row])
+            if letter[i] == "{" and letter[i+1] in "0123456789" and letter[i+2] == "}":
+                color = colorsDict[int(letter[i+1])]
+                i += 3
+                try:
+                    char = letter[i]
+                except: break
+                foundColor = 0
+            if letter[i] == "{" and letter[i+1] in "r" and letter[i+2] == "}":
+                color = colorsDict['r']
+                i += 3
+                try:
+                    char = letter[i]
+                except: break
+                foundColor = 0
+                isReset = True
+            if char != "\n":
+                letterSprite = changeRGB(lettersDict[char.upper()], spriteBlack, color)
+                # color = originalColor
+            else:
+                row -= lettersHeight + 1
+                col = colStart - lettersWidth - 1
+                letterSprite = square(lettersHeight, lettersWidth, backgroundColor)
+            listOfReplacementLetters.append(addToScreenWithoutColor(Scene, letterSprite, newBlack, col, row)[0])
+        if char.upper() == "I":
+            col += lettersWidth - int(lettersWidth/2) - 6
+        if char == "'":
+            col += lettersWidth - 5
+        else:
+            col += lettersWidth + 1
+    return [listOfReplacementLetters, ColRow]
+
+#Creates a function to add points depending on the area scanned
 def calculateScore(scannedArea):
     if scannedArea in spriteDict.values():
         return 100
     else:
         return 0
     
+#create a function that runs a clock in the background with threading
+# def clock():
+#     global points
+#     while True:
+#         time.sleep(1)
+#         points += 1
+# #Starts the clock
+# import threading
+# t = threading.Thread(target=clock)
+# t.start()
+    
 
-#ITem Size
-itemHeight = 16
-itemWidth = 16
 
-
-Inventory = ["Small Weapons", "Grass"]
-lastInventory = ["Small Weapons", "Grass"]
 
 #Creating a function to display inventory
 def displayInventory(Scene, inventory : list, col, row):
     listofReplacementItems = []
+    ColRow = []
     for item in inventory:
-        listofReplacementItems.append(addToScreenWithoutColor(Scene, addPerimeter(spriteDict[item], green), newBlack, col, row)[0])
+        # listofReplacementItems.append(addToScreenWithoutColor(Scene, addPerimeter(itemsDict[item], inventoryPerimeterColor), newBlack, col, row)[0])
+        # addToScreenWithoutColor(itemsDict[item], [f"{yellow} {}"]
+        ColRow.append([col, row])
+        listofReplacementItems.append(addToScreenWithoutColor(Scene, itemsDict[item], newBlack, col, row)[0])
         col += itemWidth
-    return [listofReplacementItems, col, row]
+        if col >= sceneWidth:
+            col = 0
+            row -= itemHeight
+    return [listofReplacementItems, ColRow]
 
-InventoryDrawnOver = displayInventory(Scene, Inventory, 0, len(Scene) - itemHeight)
+InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
 
 
 
-addToScreen(Scene, backgroundBig, 0, 0)
 numDrawnOver = addNumToScreen(Scene, 0, 0, 0)
 #create dictionary of length of spriteDict and set each sprite to a number
 MapMaker = dict()
@@ -155,12 +317,9 @@ for i, sprite in enumerate(spriteDict):
 
 
 
-sprites = []
-#Adds each sprite to the sprite list
-for i, sprite in enumerate(spriteDict):
-    sprites.append(sprite)
+
 #Setting up color palletes or sprite pallete
-palletes = [rainbow, rainbow_bright, spriteDict]
+palletes = [rainbow, rainbow_bright, spriteDict, itemsDict]
 pallateStart = 0
 # initliazes pallet
 Pallete = palletes[pallateStart]
@@ -201,8 +360,6 @@ defaultBorder = grey
 border = []
 Stored = []
 erase = False
-sceneLength = len(Scene)
-sceneWidth = len(Scene[0])
 # for x in range(0, 8):
 #     addBorderToArea(Scene, (0+x, 0+x), sceneLength-x, sceneWidth-x, backgroundColor, Pallete[x%mod])
 # addBorderToArea(Scene, (1, 1), sceneLength-1, sceneWidth-1, backgroundColor, red)
@@ -211,9 +368,10 @@ sceneWidth = len(Scene[0])
 # print(f"{newBlack}Color:")
 # time.sleep(1)
 printScreen(Scene)
-# first = True    
-#Where block gets created
-r = sceneLength-pixelRatio
+# first = True   
+ 
+#Starting position for moving sprite
+r = sceneLength-7*pixelRatio 
 c = 0
 overwriteSpot = False
 # Stored = [spriteDict["Ninja"], c, r]
@@ -232,33 +390,68 @@ def printCurrentPos(row = r, col = c, color = Pallete[rc%mod], borderColor = Pal
 
 first = True
 inventoryChange = False
+#Checks all the rotations of the block and its flips to see if a spriteDict sprite is in the itemsDict and returns the key
+def checkForItem(item):
+    rotations = 0
+    for key, value in spriteDict.items():
+        for x in range(0, 8):
+            if value == item and key in itemsDict:
+                return key
+            item = rotate(item, 270)
+            rotations += 1
+            if rotations > 3:
+                item = mirror(item)
+                rotations = 0
+    return False
+
+# #Checks if the block is in the itemsDict and returns the key
+# def getSprite(item):
+#     for key, value in spriteDict.items():
+#         if value == item and key in itemsDict:
+#             return key
+#     return False
+
+
+
+
+
 
 # Start of engine
-while not keys.check_keys():
+while not keys.is_esc_pressed():
     #Scoreboard updates
     if lastPoints != points:
         for i, sprite in enumerate(numDrawnOver[0]):
             #Replaces what numbers drew over before
-            addToScreen(Scene, sprite, i*numbersWidth, numDrawnOver[2])
+            addToScreen(Scene, sprite, numDrawnOver[1][i][0], numDrawnOver[1][i][1])
         #adds new number to screen
         numDrawnOver = addNumToScreen(Scene, points, 0, 0)
         printScreen(Scene)
         lastPoints = points
     #Inventory updates
     if lastInventory != Inventory or inventoryChange:
+        itemRow = sceneLength - itemHeight
+        itemCol = 0
+        #Sort by name
+        Inventory.sort()
         for i, sprite in enumerate(InventoryDrawnOver[0]):
             #Replaces what inventory drew over before
-            addToScreen(Scene, sprite, i*itemWidth, sceneLength - itemHeight)
+            addToScreen(Scene, sprite, InventoryDrawnOver[1][i][0], InventoryDrawnOver[1][i][1])
+            # itemCol += 1
+            # #If itemCol is greater than sceneWidth, then it will go to next row
+            # if itemCol*itemWidth >= sceneWidth:
+            #     itemCol = 0
+            #     itemRow -= itemHeight
         #adds new inventory to screen
-        InventoryDrawnOver = displayInventory(Scene, Inventory, 0, len(Scene) - itemHeight)
+        InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
         printScreen(Scene)
         lastInventory = Inventory
         inventoryChange = False
     
     if keys.is_j_pressed():
-        Inventory.append("Iron Ore")
+        #add a random item from the itemsDict to the inventory
+        Inventory.append(itemsNames[random.randint(0, len(itemsNames)-1)])
         inventoryChange = True
-        time.sleep(.1)
+        time.sleep(.05)
         keys.keys_pressed.discard(all)
 
     if keys.is_u_pressed():
@@ -270,7 +463,7 @@ while not keys.check_keys():
         if Inventory != []:
             Inventory.pop()
             inventoryChange = True
-        time.sleep(.1)
+        time.sleep(.05)
         keys.keys_pressed.discard(all)
 
 
@@ -284,6 +477,7 @@ while not keys.check_keys():
         clear()
         printScreen(Scene)
         Stored = []
+        erase = True
         time.sleep(.1)
     #undoes clear screen
     if keys.is_z_pressed() and not drawnOver == []:
@@ -440,15 +634,25 @@ while not keys.check_keys():
         keys.keys_pressed.discard(all)
 
     #Rotates block
-    if keys.is_x_pressed() and not Stored == [] and not erase:
-        currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
-        addToScreen(Scene, rotate(currentBlock, 270), c, r)
+    if keys.is_x_pressed() and not Stored == [] and not erase and not colorMode:
+        #Allows flipping current sprite
+        if overwriteSpot == False:
+            overwriteSpot = rotate(spriteDict[sprites[rc%mod]], 270)
+        else:
+            overwriteSpot = rotate(overwriteSpot, 270)
+        # currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
+        addToScreen(Scene, Stored[0], c, r)
+        addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
         printScreen(Scene)
         time.sleep(.2)
     # Flips block
-    if keys.is_f_pressed() and not Stored == [] and not erase:
-        currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
-        addToScreen(Scene, mirror(currentBlock), c, r)
+    if keys.is_f_pressed() and not Stored == [] and not erase and not colorMode:
+        if overwriteSpot == False:
+            overwriteSpot = mirror(spriteDict[sprites[rc%mod]])
+        else:
+            overwriteSpot = mirror(overwriteSpot)
+        addToScreen(Scene, Stored[0], c, r)
+        addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
         printScreen(Scene)
         time.sleep(.2)
     #Erases border outline
@@ -474,6 +678,10 @@ while not keys.check_keys():
         # Erases background of scene in order to prepare the white outline
         if Stored[0] != square(pixelRatio, pixelRatio, backgroundColor) and erase == True:
             points += 100
+            checkItem = checkForItem(Stored[0])
+            if checkItem != False:
+                Inventory.append(checkItem)
+                inventoryChange = True
         #starts to create new scene to create a box with white outline
         borderingBackground = square(pixelRatio + 2, pixelRatio + 2, yellow)
         addToScreen(borderingBackground, square(pixelRatio, pixelRatio, backgroundColor), 1, 1)
@@ -497,7 +705,7 @@ while not keys.check_keys():
 
         erase = True
         printScreen(Scene)
-        time.sleep(.08)
+        # time.sleep(.08)
 
     #changing colors with Pallete
     elif keys.is_t_pressed() and not erase:
@@ -535,11 +743,51 @@ while not keys.check_keys():
         time.sleep(.3)
 
 
-
-
-
-
-
-
 # Show cursor
 sys.stdout.write("\033[?25h" + reset)
+# time.sleep(0.5)
+#Create a screen, then add text to it.
+saveScrene = screen(sceneLength, sceneWidth, cyan)
+# addToScreen(saveScrene, backgrounds.getPixelImage(1), 0, 0)
+#Where to place the text
+LetterCol = int(sceneWidth/5)
+LetterRow = int(sceneLength/1.3)
+LetterColor = black
+overwrite = addLetterToScreen(saveScrene, "Save current Game or Restart?\n{1}'R'{r} to {1}Restart{r}!\n{2}'S'{r} to {2}Save{r}!", LetterColor,  LetterCol, LetterRow)
+keys.keys_pressed.discard(all)
+printScreen(saveScrene)
+# time.sleep(0.5)
+while not keys.is_s_pressed():
+    if keys.is_r_pressed():
+        itemCol = LetterCol
+        itemRow = LetterRow
+        for i, sprite in enumerate(overwrite[0]):
+            #Replaces what inventory drew over before
+            addToScreen(saveScrene, sprite, overwrite[1][i][0], overwrite[1][i][1])
+        addLetterToScreen(saveScrene, "{1}Restarting...{r}", green, LetterCol, LetterRow)
+        printScreen(saveScrene)
+        #If dont want to be saved remove the files
+        if os.path.exists("Scene.txt"):
+            os.remove("Scene.txt")
+        if os.path.exists("Inventory.txt"):
+            os.remove("Inventory.txt")
+        if os.path.exists("Points.txt"):
+            os.remove("Points.txt")
+        keys.keys_pressed.discard(all)
+        sys.exit()
+
+for i, sprite in enumerate(overwrite[0]):
+    addToScreen(saveScrene, sprite, overwrite[1][i][0], overwrite[1][i][1])
+addLetterToScreen(saveScrene, "{2}Saved{r}!", LetterColor, LetterCol, LetterRow)
+printScreen(saveScrene)
+
+#Save the scene to a file to be loaded later
+if Stored != []:
+    addToScreen(Scene, Stored[0], c, r)
+saveScene(Scene, "Scene.txt", True)
+saveScene(Inventory, "Inventory.txt", False)
+saveScene([str(points)], "Points.txt", False)
+# saveScene(InventoryDrawnOver, "Points.txt", False)
+keys.keys_pressed.discard(all)
+sys.exit()
+

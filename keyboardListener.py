@@ -116,7 +116,8 @@ class MyKeyListener:
         if "Key.esc" in self.keys_pressed:
             print("You have exited the program")
             sys.stdout.write("\033[?25h" + "\033[0m")
-            sys.exit()
+            return True
+            # sys.exit()
     
     
     def check_keys(self):
