@@ -225,11 +225,13 @@ def saveScene(Scene, fileName = "Scene.txt", is2d = True):
             for row in Scene:
                 for col in row:
                     # Seperate the characters by a * so that they can be split later
-                    file.write(col + "*")
+                    file.write(str(col))
+                    file.write("*")
                 file.write("\n")
         else:
             for col in Scene:
-                file.write(col + "*")
+                file.write(str(col))
+                file.write("*")
     print(f"\033[42m Scene saved to {fileName} \033[0m")
 
 #Get the scene from the file that was saved

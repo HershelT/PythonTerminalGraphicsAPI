@@ -96,9 +96,12 @@ def printScreen(screen, clear=True, hideCursor=True):
     
     
     # Build the screen buffer with escape codes for positioning
-    max_length = len(max(screen, key=len))
-    buffer = ['\033[%d;1H%s\n' % (y + 1, ''.join(row[:max_length]))
-            for y, row in enumerate(screen)]
+    # max_length = len(max(screen, key=len))
+    # buffer = ['\033[%d;1H%s\n' % (y + 1, ''.join(row[:max_length]))
+    #         for y, row in enumerate(screen)]
+
+    buffer = ('\033[%d;1H%s\n' % (y + 1, ''.join(row))
+          for y, row in enumerate(screen))
 
     # Combine and print the buffer in one go
     sys.stdout.write(''.join(buffer))

@@ -1,6 +1,24 @@
-from pynput import keyboard
+from pynput.keyboard import Controller, Key
+import time
+import sys, os
 
-import sys
+#Check if windows or mac
+is_windows = os.name == 'nt'
+resizeKey = Key.ctrl if is_windows else Key.cmd
+def resizeWindow():
+    keyboard = Controller()
+    for _ in range(20):
+        with keyboard.pressed(resizeKey):
+            keyboard.press('-')
+            keyboard.release('-')
+        # time.sleep(0.1)
+    with keyboard.pressed(resizeKey):
+        keyboard.press('+')
+        keyboard.release('+')
+    # time.sleep(0.1)
+    del keyboard
+
+from pynput import keyboard
 # Define a key listener
 class MyKeyListener:
     def __init__(self, key_actions={}):

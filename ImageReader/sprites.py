@@ -15,7 +15,8 @@ itemsTools = pixelImage(itemsTools)
 
 backgroundBig =  [f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundBlue.png', 
                   f'ImageReader{dir_sep}BackgroundSprites{dir_sep}Background.png',
-                    f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundTile.png']
+                    f'ImageReader{dir_sep}BackgroundSprites{dir_sep}BackgroundTile.png',
+                    f'ImageReader{dir_sep}BackgroundSprites{dir_sep}NewLevel.png']
 backgroundBig = pixelImage(backgroundBig)
 
 numbers = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Numbers.png']
