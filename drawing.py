@@ -485,6 +485,12 @@ def addBorderToArea(scene, point1, height, width, oldColor, newColor, ToScreen =
     #Returns the new screen with the border
     return scanned
 
+#Increase size of object by a certain amount and add the perimeter color to that object
+def createPermiter(object, perimeterSize, color):
+    newObject = screen(len(object)+perimeterSize*2, len(object[0])+perimeterSize*2, color)
+    addToScreen(newObject, object, perimeterSize, perimeterSize)
+    return newObject
+
 
 
 

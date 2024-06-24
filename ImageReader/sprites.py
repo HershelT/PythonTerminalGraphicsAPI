@@ -22,8 +22,12 @@ backgroundBig = pixelImage(backgroundBig)
 numbers = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Numbers.png']
 numbers = pixelImage(numbers)
 
-letters = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Letters1.png']
+letters = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Letters1.png', 
+           f'ImageReader{dir_sep}LettersSprites{dir_sep}Letters.png',]
 letters = pixelImage(letters)
+
+
+
 spriteBlack = letters.getPixel(0).getPixel(0, 8)
 # print(f"{spriteBlack} Hello World")
 # import time

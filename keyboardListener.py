@@ -28,6 +28,15 @@ class MyKeyListener:
     def on_press(self, key):
         self.keys_pressed.add(str(key))
 
+    def add_key_action(self, key, action):
+        self.key_actions[str(key)] = action
+    
+    def remove_key_action(self, key):
+        if str(key) in self.key_actions:
+            del self.key_actions[str(key)]
+    def add_key_actions(self, key_actions):
+        self.key_actions = key_actions
+
     def on_release(self, key):
         self.keys_pressed.discard(str(key))
 
@@ -110,8 +119,29 @@ class MyKeyListener:
         return "'8'" in self.keys_pressed
     def is_9_pressed(self):
         return "'9'" in self.keys_pressed
-    
-    
+    def get_pressed_number(self):
+        if self.is_0_pressed():
+            return '0'
+        elif self.is_1_pressed():
+            return '1'
+        elif self.is_2_pressed():
+            return '2'
+        elif self.is_3_pressed():
+            return '3'
+        elif self.is_4_pressed():
+            return '4'
+        elif self.is_5_pressed():
+            return '5'
+        elif self.is_6_pressed():
+            return '6'
+        elif self.is_7_pressed():
+            return '7'
+        elif self.is_8_pressed():
+            return '8'
+        elif self.is_9_pressed():
+            return '9'
+        else:
+            return False
     
     #Non keyboard charcters like enter 
     def is_left_arrow_pressed(self):
@@ -128,6 +158,8 @@ class MyKeyListener:
         return "Key.enter" in self.keys_pressed
     def is_tab_pressed(self):
         return "Key.tab" in self.keys_pressed
+    def is_shift_pressed(self):
+        return "Key.shift" in self.keys_pressed
     def is_space_pressed(self):
         return "Key.space" in self.keys_pressed
     def is_esc_pressed(self):
@@ -142,6 +174,7 @@ class MyKeyListener:
         for key in list(self.keys_pressed):  # Create a copy of self.keys_pressed
             if key in self.key_actions:
                 self.key_actions[key]()
+
         self.is_esc_pressed()
 
 # Key_Listener = MyKeyListener()
