@@ -12,7 +12,7 @@ from keyboardListener import *
 clear()
 resizeWindow()
 # clear()
-backgroundColor = rgb(0, 255, 255)
+backgroundColor = rgb(95, 215, 175)
 # backgroundColor = black
 
 #Setting up nether to align with background color
@@ -577,9 +577,6 @@ t.start()
 # sprites = itemsNames
 # Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
 isJumping = False
-for i in range(1, 4):
-    addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
-    addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight)
 
 #Add names of sprites that will be animated by flipping them
 animatingSprites = ["Small Portal", "Fire"]
@@ -598,16 +595,22 @@ def scanForAnimationSprite(Scene, pixelRatio):
         i += pixelRatio
         j = 0
 
-
+#Check if any of the animating sprites are on screen
 scanForAnimationSprite(Scene, pixelRatio)
-# addLetterToScreen(Scene, "DIMENSION ENTRANCE", red, 4*pixelRatio-pixelRatio, 13*pixelRatio+1)
+
+#SETTING UP STARTING UI AREA
+drawRectangle(Scene, rgb(0, 255, 255), (0, len(Scene)-pixelRatio*1), (len(Scene[0]), len(Scene)))
 drawLine(Scene, black, (0, len(Scene)-pixelRatio*1), (len(Scene[0])-1, len(Scene)-pixelRatio*1))
+for i in range(1, 4):
+    addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
+    addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight)
 switchedSprite = False
 
 #Adds every item in game to inventory (temporary)
 Inventory = []
 for item in itemsDict.keys():
-    Inventory.append(item)
+    if item != "Wings":
+        Inventory.append(item)
     # inventoryChange = True
 
 
@@ -753,23 +756,16 @@ while not keys.is_esc_pressed():
         keys.keys_pressed.discard(all)
 
     #Adds random item to inventory
-    if keys.is_j_pressed():
+    if keys.is_j_pressed() and "Wings" not in Inventory:
         newItem = itemsNames[random.randint(0, len(itemsNames)-1)]
         if newItem not in Inventory:
             Inventory.append(newItem)
             inventoryChange = True
-            time.sleep(1)
-        keys.keys_pressed.discard(all)
-    #Add Wings to inventory
-    elif keys.is_m_pressed():
-        if "Wings" not in Inventory:
-            Inventory.append("Wings")
-            inventoryChange = True
-            time.sleep(.05)
+            time.sleep(0.05)
         keys.keys_pressed.discard(all)
 
     #Pop last item in inventory
-    elif keys.is_k_pressed():
+    elif keys.is_k_pressed() and "Wings" in Inventory:
         if Inventory != []:
             Inventory.pop()
             inventoryChange = True
@@ -777,18 +773,16 @@ while not keys.is_esc_pressed():
         keys.keys_pressed.discard(all)
 
 
-
-
-    #Clears the screen
-    if keys.is_c_pressed():
+    #Clears the screen and saves the current screen to last replacement
+    if keys.is_c_pressed() and  Stored != []:
         if not Stored == []:
             addToScreen(Scene, Stored[0], c, r)
+        portalsOnScreen = {}
         drawnOver = clearScreen(Scene, backgroundColor)
         clear()
         printScreen(Scene)
         Stored = []
         erase = True
-        portalsOnScreen = {}
         time.sleep(.1)
     #undoes clear screen
     if keys.is_z_pressed() and not drawnOver == []:
