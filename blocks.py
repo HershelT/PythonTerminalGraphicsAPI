@@ -11,7 +11,7 @@ sys.path.insert(0, './ImageReader')
 from keyboardListener import *
 resizeWindow()
 clear()
-backgroundColor = rgb(0, 175, 255)
+backgroundColor = rgb(0, 255, 255)
 # backgroundColor = black
 
 #Setting up nether to align with background color
@@ -24,7 +24,8 @@ chooseBackgroundIndex = 2
 newBlack = toolsBig.getPixel(0); replacePixel = backgroundBig.getPixel(chooseBackgroundIndex)
 colorNew = newBlack.getPixel(0, 0); newReplace = replacePixel.getPixel(0, 0)
 newBlack.replacePixels(colorNew, backgroundColor); replacePixel.replacePixels(newReplace, backgroundColor)
-spriteSheet = newBlack.getImage(); backgroundBig = replacePixel.getImage()
+spriteSheet = newBlack.getImage(); 
+backgroundBig = replacePixel.getImage()
 
 #Sets newBlack as the go to background color
 newBlack = newBlack.getPixel(0, 0)
@@ -87,8 +88,8 @@ amountOfWorlds = len(worldToTravel)
 
 
 # Clear screen and prints it
-clear()
-printScreen(Scene)
+# clear()
+# printScreen(Scene)
 
 # Hide cursor
 sys.stdout.write("\033[?25l")
@@ -160,7 +161,7 @@ itemsNames = []
 
 
 #Setting up (8x8) sprites
-ItemsLevels = ["Heart"]
+ItemsLevels = ["Heart","Experience Orb"]
 ItemsDecorations = ["Window", "Ladder", "Platform", "Wings", "Door", "Small Portal"]
 ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian", "Ninja", "Nether Portal", "Emerald Ore", "Gold Ore", "Netherack"]
 ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore"]
@@ -519,9 +520,10 @@ class CheckPortalThread(threading.Thread):
             for key, value in list(portalsOnScreen.items()):
                 if (c, r) != key:
                     change = True
-                    portalsOnScreen[key] = [mirror(value[0])]
+                    portalsOnScreen[key] = [mirror(value[0]), portalsOnScreen[key][1]]
                     #Deciding if i want to overide background
-                    addToScreen(Scene, portalsOnScreen[key][0], key[0], key[1])
+                    addToScreen(Scene, portalsOnScreen[key][1], key[0], key[1])
+                    addToScreenWithoutColor(Scene, portalsOnScreen[key][0], newBlack, key[0], key[1])
                     # addToScreenWithoutColor(Scene, portalsOnScreen[key][0], newBlack, key[0], key[1])
             # if change and not self.stop_flag: 
             #     # printScreen(Scene)
@@ -538,7 +540,11 @@ t.start()
 isJumping = False
 for i in range(1, 4):
     addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
-#Check if any portals are on starting screen
+    addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight-2)
+
+#Add names of sprites that will be animated by flipping them
+animatingSprites = ["Small Portal", "Fire"]
+#Check if any of the animating sprites are on screen
 def scanForPortal(Scene, pixelRatio):
     global portalsOnScreen
     i, j = 0, 0
@@ -547,8 +553,8 @@ def scanForPortal(Scene, pixelRatio):
             blocksScanned = scanArea(Scene, (j, i), pixelRatio, pixelRatio)
             #Checks if block is an animation sprite
             typeOfBlock = checkForItem(blocksScanned)
-            if typeOfBlock in ["Small Portal", "Fire"]:
-                portalsOnScreen[(j, i)] = [blocksScanned]
+            if typeOfBlock in animatingSprites:
+                portalsOnScreen[(j, i)] = [blocksScanned, predefinedSquare]
             j += pixelRatio
         i += pixelRatio
         j = 0
@@ -571,7 +577,7 @@ while not keys.is_esc_pressed():
             #     # continue
             # Glitch where if wings in inventory then it will not stop on block
             results = checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwriteSpot)
-            if r != results[0]:
+            if r != results[0] or blockBelow == spriteDict["Fire"] or blockBelow == mirror(spriteDict["Fire"]):
                 r = results[0]
                 Stored = results[1]
                 #Checks if block is a portal to transfer dimensions
@@ -581,8 +587,10 @@ while not keys.is_esc_pressed():
                     continue
                 else:
                     #Resets left and right movement while falling if on block, prevents glitch where cant double jump
-                    if scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio) != predefinedSquare:
-                        isJumping = 0
+                    if scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio) not in SpritesInBackground:
+                    #     printScreen(scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio))
+                    #     time.sleep(1)
+                          isJumping = 0
                     #If on air allows to move left or right with wings
                     #Movement of two blocks with wings
                     else:
@@ -636,6 +644,11 @@ while not keys.is_esc_pressed():
     if keys.is_j_pressed():
         #add a random item from the itemsDict to the inventory
         Inventory.append(itemsNames[random.randint(0, len(itemsNames)-1)])
+        inventoryChange = True
+        time.sleep(.05)
+        keys.keys_pressed.discard(all)
+    elif keys.is_m_pressed():
+        Inventory.append("Wings")
         inventoryChange = True
         time.sleep(.05)
         keys.keys_pressed.discard(all)
@@ -697,18 +710,17 @@ while not keys.is_esc_pressed():
                     addToScreenWithoutColor(Scene, spriteDict[sprites[rc%mod]], newBlack, c, r)
                 overwriteSpot = spriteDict[sprites[rc%mod]]
             else:
+                previousBlock = Stored[0]
+                compareCurrentBlock = checkForItem(spriteDict[sprites[rc%mod]])
+                if compareCurrentBlock in animatingSprites:
+                    portalsOnScreen[(c, r)] = [spriteDict[sprites[rc%mod]], previousBlock]
                 currentThing = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
                 Stored = [currentThing, c, r] 
         if erase:
-            erase = False 
+            erase = False
         if not border == [] and colorMode:
             border = addBorderToArea(Scene, (c, r), pixelRatio, pixelRatio, Pallete[rc%mod], defaultBorder)
         Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
-        if spriteDict[sprites[rc%mod]] == spriteDict["Small Portal"]:
-            portalsOnScreen[(c, r)] = [spriteDict["Small Portal"]]
-        if spriteDict[sprites[rc%mod]] == spriteDict["Fire"]:
-            portalsOnScreen[(c, r)] = [spriteDict["Fire"]]
-
         printScreen(Scene)        
         time.sleep(.1)
         keys.keys_pressed.discard(all)
@@ -776,6 +788,9 @@ while not keys.is_esc_pressed():
     #Up and Down
     if keys.is_w_pressed() and r < sceneLength - pixelRatio and not Stored == [] and isJumping < 1:
         blockAbove = scanArea(Scene, (c, r + pixelRatio), pixelRatio, pixelRatio)
+        # blockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
+        # if blockBelow in SpritesInBackground:
+        #     continue
         itemToCheck = checkForItem(blockAbove)
         isSpriteNinja = sprites[rc%mod] == "Ninja"
         if (blockAbove == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palletes[2]) or colorMode:
@@ -793,7 +808,8 @@ while not keys.is_esc_pressed():
                 Stored = addToScreenWithoutColor(Scene, Spot, newBlack, c, r)
             printScreen(Scene)
         keys.keys_pressed.discard(all)
-        isJumping = 1
+        if isSpriteNinja: 
+            isJumping = 1
         #Checks if block is a portal to transfer dimensions
         checkPortal(Scene, itemToCheck, c, r)
     #Moves Down
@@ -818,7 +834,7 @@ while not keys.is_esc_pressed():
         checkPortal(Scene, itemToCheck, c, r)
         keys.keys_pressed.discard(all)
     #Left and Right
-    if keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == [] or (keys.is_d_pressed() and isJumping > 0 and isJumping < 3):
+    if keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == [] or (keys.is_d_pressed() and isJumping > 0 and isJumping < 3 and c < len(Scene[0]) - pixelRatio):
         blockToRight = scanArea(Scene, (c + pixelRatio, r), pixelRatio, pixelRatio)
         itemToCheck = checkForItem(blockToRight)
         isSpriteNinja = sprites[rc%mod] == "Ninja"
@@ -845,7 +861,7 @@ while not keys.is_esc_pressed():
         #Checks if block is a portal to transfer dimensions
         checkPortal(Scene, itemToCheck, c, r)
         keys.keys_pressed.discard(all)
-    elif keys.is_a_pressed() and c > 0 and not Stored == [] or (keys.is_a_pressed() and isJumping > 0 and isJumping < 3):
+    elif keys.is_a_pressed() and c > 0 and not Stored == [] or (keys.is_a_pressed() and isJumping > 0 and isJumping < 3 and c > 0):
         blockToLeft = scanArea(Scene, (c - pixelRatio, r), pixelRatio, pixelRatio)
         itemToCheck = checkForItem(blockToLeft)
         isSpriteNinja = sprites[rc%mod] == "Ninja"
@@ -942,7 +958,7 @@ while not keys.is_esc_pressed():
             #If already in eraser mode and block is erased, then it will add background color to the scene
             #Checks Objecrs in the scene to see if it is an item that has an animation
             checkIfPortal = addToScreen(Scene, predefinedSquare, c, r)
-            if checkForItem(checkIfPortal[0]) == "Small Portal" or checkForItem(checkIfPortal[0]) == "Fire":
+            if checkForItem(checkIfPortal[0]) in animatingSprites:
                 del portalsOnScreen[(c, r)]
             Stored = [predefinedSquare, c, r]
         #Adds the white outline to the scene
