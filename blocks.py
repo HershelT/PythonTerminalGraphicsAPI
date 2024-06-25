@@ -67,7 +67,7 @@ if os.path.exists("Scene.txt"):
 
 else:
     # print(f"{blue} New Game {reset}")
-    Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
+    Scene = screen(pixelRatio*height*scale + 9, pixelRatio*width*scale, backgroundColor)
     #Add predetermined background
     addToScreen(Scene, backgroundBig, 0, 0)
     # InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
@@ -204,6 +204,7 @@ ItemsDecorations = ["Window", "Ladder", "Platform", "Door", "Small Portal", "Fir
 ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian","Nether Portal", "Netherack"]
 ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore"]
 ItemsTools = ["Diamond Pickaxe", "Wood Sword", "Diamond Pic", "Flint 'n Steel"]
+ItemsItems = ["Diamond", "Iron Ingot", "Gold Ingot", "Emerald"]
 
 #Scanning the 8x8 sprite sheet and setting each sprite to a dict value
 #Corresponding to the sprite name from itemsNames
@@ -228,6 +229,11 @@ for i in range(0, len(ItemsLevels)):
     itemsNames.append(ItemsLevels[i])
     itemsDict[ItemsLevels[i]] = scanArea(items, (i*itemWidth, 4*itemHeight), itemHeight, itemWidth)
 
+#Add items to the end of the list
+for i in range(0, len(ItemsItems)):
+    itemsNames.append(ItemsItems[i])
+    itemsDict[ItemsItems[i]] = scanArea(items, (i*itemWidth, 5*itemHeight), itemHeight, itemWidth)
+
 #See how many items are in the sprite blocks
 AmountOfItemsInSpriteDict = 0
 for i, spriteName in enumerate(sprites):
@@ -245,15 +251,16 @@ for i, spriteName in enumerate(sprites):
 # newBlack = getColor(spriteDict[SpriteBigTools[2]], (0, 0))
 # print(f"{newBlack}Color:")
 # time.sleep(1)
-
-
+spriteDict["Background"] = predefinedSquare
+#Defining types of sprites that are in the background, as in can pass through on fall
+SpritesInBackground = [predefinedSquare, spriteDict["Small Portal"], spriteDict["Fire"], mirror(spriteDict["Small Portal"]), mirror(spriteDict["Fire"])]
 #Blocks a charcter can pass through
 passThrough = [predefinedSquare, "Ladder", "Nether Portal", "Platform", "Door", "Small Portal", "Fire"]
 Angel = spriteDict["Angel"]
 Ninja = spriteDict["Ninja"]
 
 
-
+#ANIMATION SPRITES
 portalsOnScreen = {
     
 }
@@ -431,29 +438,12 @@ def displayInventory(Scene, inventory : list, col, row):
         listofReplacementItems.append(addToScreenWithoutColor(Scene, createPermiter(itemsDict[item], perimeterSize, changeColor), newBlack, col, row-2*perimeterSize)[0])
         # listofReplacementItems.append(addToScreenWithoutColor(Scene, itemsDict[item], newBlack, col, row-1)[0])
         col += itemWidth + perimeterSize*2
-        if col >= sceneWidth:
+        if col >= 18*(itemWidth + 2*perimeterSize):
             col = 0
-            row -= itemHeight
+            row -= (itemHeight + 2*perimeterSize)
     return [listofReplacementItems, ColRow]
-
+#VARIABLE TO HOLD INVENTORY AND WHAT IT DREW OVER WHEN PLACING
 InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
-
-
-
-
-
-
-# newBlack = rgb(0, 0, 0)
-# print(f"{newBlack}Color:")
-# time.sleep(1)
-# printScreen(Scene)
-# first = True   
- 
-
-
-
-
-# Stored = [spriteDict["Ninja"], c, r]
 
 # def printCurrentPos(row = r, col = c, color = Pallete[rc%mod], borderColor = Pallete[rc%mod], erase = False):
 #     if erase == True:
@@ -519,8 +509,7 @@ def checkPortal(Scene, itemToCheck, c, r):
         addToScreenWithoutColor(Scene, spriteDict["Ninja"], newBlack, c, r)
         printScreen(Scene)
         # print("Current World: ", currentWorld, "                    ")
-#Defining types of sprites that are in the background, as in can pass through on fall
-SpritesInBackground = [predefinedSquare, spriteDict["Small Portal"], spriteDict["Fire"], mirror(spriteDict["Small Portal"]), mirror(spriteDict["Fire"])]
+
 #CReate a function to move charcter down if it is on a background color of predefinedSquare
 def checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwriteSpot):
     #Checks if blockBewlow is a predefinedSquare and if it is not a ladder (a block that the character can hold onto)
@@ -599,8 +588,8 @@ def scanForAnimationSprite(Scene, pixelRatio):
 scanForAnimationSprite(Scene, pixelRatio)
 
 #SETTING UP STARTING UI AREA
-drawRectangle(Scene, rgb(0, 255, 255), (0, len(Scene)-pixelRatio*1), (len(Scene[0]), len(Scene)))
-drawLine(Scene, black, (0, len(Scene)-pixelRatio*1), (len(Scene[0])-1, len(Scene)-pixelRatio*1))
+drawRectangle(Scene, rgb(0, 255, 255), (0, len(Scene)-pixelRatio*1 - itemHeight*1), (len(Scene[0]), len(Scene)))
+drawLine(Scene, black, (0, len(Scene)-pixelRatio*1-itemHeight-1), (len(Scene[0])-1, len(Scene)-pixelRatio*1-itemHeight-1))
 for i in range(1, 4):
     addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
     addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight)
@@ -739,6 +728,8 @@ while not keys.is_esc_pressed():
         else:
             rc = int(numberPressed)-1
             previousNumber = rc
+        if erase:
+            erase = False
         if colorMode:
             addToScreen(Scene, square(pixelRatio, pixelRatio, Pallete[rc%mod]), c, r)
         else:
