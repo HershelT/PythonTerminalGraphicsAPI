@@ -26,6 +26,9 @@ letters = [f'ImageReader{dir_sep}LettersSprites{dir_sep}Letters1.png',
            f'ImageReader{dir_sep}LettersSprites{dir_sep}Letters.png',]
 letters = pixelImage(letters)
 
+people = [f'ImageReader{dir_sep}BlocksSprites{dir_sep}People.png']
+people = pixelImage(people)
+
 
 
 spriteBlack = letters.getPixel(0).getPixel(0, 8)

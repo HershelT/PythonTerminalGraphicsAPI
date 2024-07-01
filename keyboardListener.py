@@ -37,6 +37,9 @@ class MyKeyListener:
     def add_key_actions(self, key_actions):
         self.key_actions = key_actions
 
+    def clear_pressed_keys(self):
+        self.keys_pressed.clear()
+
     def on_release(self, key):
         self.keys_pressed.discard(str(key))
 
