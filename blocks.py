@@ -143,7 +143,7 @@ lettersDict["'"] = scanArea(letters, (30*lettersWidth, 0), lettersHeight, letter
 #Setting up new (16x16) Sprites
 blocks = spriteSheet
 SpritesPlatform = ["Ladder", "Platform", "Door", "Small Portal"]
-SpritesPeople = ["Ninja", "Ninja Crouch", "Bow Staff Ninja", "Angel","High Res Ninja", "High Res Ninja Down"]
+SpritesPeople = ["Ninja", "Ninja Crouch", "Bow Staff Ninja", "Angel","High Res Ninja", "High Res Ninja Down", "High Res Ninja Up"]
 SpritesDecoration = ["Window","Brick","Fire", "Netherack", "Nether Portal", "Obsidian"]
 SpritesTerrain = ["Grass", "Dirt", "Grass Connector", "Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore"]
 spriteDict = {}
@@ -872,7 +872,24 @@ while not keys.is_esc_pressed():
         
     # Placing the block, super crucial
     # elif (keys.is_q_pressed()) and (sprites[rc%mod] not in ["Ninja", "Angel"] or erase or colorMode):
-    elif (keys.is_q_pressed()):
+    if keys.is_q_pressed(): 
+        if len(Inventory) > 0:
+            if keys.is_w_pressed():
+                addToScreen(Scene, Stored[0], c, r)
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
+                r += pixelRatio
+                Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+            elif keys.is_d_pressed():
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c+pixelRatio, r-pixelRatio)
+            elif keys.is_a_pressed():
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c-pixelRatio, r-pixelRatio)
+            else:
+                print("+")
+            printScreen(Scene)
+            # printScreen(Scene)
+            # continue
+    
+    if (keys.is_q_pressed()) and not keys.is_w_pressed() and not keys.is_d_pressed() and not keys.is_a_pressed() and not keys.is_s_pressed() and not keys.is_space_pressed():
         if colorMode:
             if erase:
                 if Stored == []:    
@@ -901,6 +918,7 @@ while not keys.is_esc_pressed():
                             elif Direction == "Up":
                                 addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r + pixelRatio)
                         except:
+                            print(f"{red} Error: {reset} {Inventory[previousNumber]} not in spriteDict")
                             pass
                 else:
                     previousBlock = Stored[0]
@@ -996,11 +1014,23 @@ while not keys.is_esc_pressed():
         # Add this if using sprite taller than pixelRatio
         # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         blockAbove = scanArea(Scene, (c, r + pixelRatio), pixelRatio, pixelRatio)
-        # blockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
-        # if blockBelow in SpritesInBackground:
-        #     continue
         itemToCheck = checkForItem(blockAbove)
-        # isSpriteNinja = sprites[rc%mod] == "Ninja"
+        if Direction != "Up" and isSpriteNinja and not colorMode:
+            addToScreen(Scene, Stored[0], c, r)
+            if Direction == "Left" or Direction == "Down":
+                if overwriteSpot == mirror(spriteDict["High Res Ninja Down"]):
+                    overwriteSpot = mirror(spriteDict["High Res Ninja Up"])
+                elif overwriteSpot == spriteDict["High Res Ninja Down"]:
+                    overwriteSpot = spriteDict["High Res Ninja Up"]
+                else:
+                    overwriteSpot = mirror(spriteDict["High Res Ninja Up"])
+            else:
+                overwriteSpot = spriteDict["High Res Ninja Up"]
+            addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+            printScreen(Scene)
+            Direction = "Up"
+
+
         if (blockAbove == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
             if overwriteSpot == False:
                 Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
@@ -1027,11 +1057,19 @@ while not keys.is_esc_pressed():
         # isSpriteNinja = sprites[rc%mod] == "Ninja"
         if Direction != "Down" and isSpriteNinja and not colorMode:
             addToScreen(Scene, Stored[0], c, r)
-            addToScreenWithoutColor(Scene, spriteDict["High Res Ninja Down"], newBlack, c, r)
-            overwriteSpot = spriteDict["High Res Ninja Down"]
+            if Direction == "Left" or Direction == "Up":
+                if overwriteSpot == mirror(spriteDict["High Res Ninja Up"]):
+                    overwriteSpot = mirror(spriteDict["High Res Ninja Down"])
+                elif overwriteSpot == spriteDict["High Res Ninja Up"]:
+                    overwriteSpot = spriteDict["High Res Ninja Down"]
+                else:
+                    overwriteSpot = mirror(spriteDict["High Res Ninja Down"])
+            else:
+                overwriteSpot = spriteDict["High Res Ninja Down"]
+            addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
             printScreen(Scene)
             Direction = "Down"
-        elif (blockDown == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
+        if (blockDown == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
             if overwriteSpot == False:
                 Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
             else:
@@ -1056,7 +1094,7 @@ while not keys.is_esc_pressed():
         if Direction != "Right" and isSpriteNinja and not colorMode:
             # keys.clear_pressed_keys()
             addToScreen(Scene, Stored[0], c, r)
-            if Direction == "Down":
+            if Direction == "Down" or Direction == "Up":
                 overwriteSpot = spriteDict["High Res Ninja"]
             else:
                 overwriteSpot = mirror(overwriteSpot)
@@ -1098,7 +1136,10 @@ while not keys.is_esc_pressed():
         if Direction != "Left" and isSpriteNinja and not colorMode:
             # keys.clear_pressed_keys()
             addToScreen(Scene, Stored[0], c, r)
-            overwriteSpot = mirror(overwriteSpot)
+            if Direction == "Down" or Direction == "Up":
+                overwriteSpot = mirror(spriteDict["High Res Ninja"])
+            else:
+                overwriteSpot = mirror(overwriteSpot)
             addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
             if isJumping == 0:
                 printScreen(Scene)
