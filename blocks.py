@@ -648,12 +648,12 @@ for i in range(1, amount):
 switchedSprite = False
 
 #Adds every item in game to inventory (temporary)
-Inventory = []
+Inventory = ["Stone"]
 #VARIABLE TO HOLD INVENTORY AND WHAT IT DREW OVER WHEN PLACING
 # InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
 InventoryDrawnOver = [[]]
 #when a change of inventory happens, set to true
-inventoryChange = False
+inventoryChange = True
 
 # for item in itemsDict.keys():
 #     if item != "Wings":
@@ -869,26 +869,9 @@ while not keys.is_esc_pressed():
         scanForAnimationSprite(Scene, pixelRatio)
         printScreen(Scene)
         time.sleep(.1)
-        
-    # Placing the block, super crucial
-    # elif (keys.is_q_pressed()) and (sprites[rc%mod] not in ["Ninja", "Angel"] or erase or colorMode):
-    if keys.is_q_pressed(): 
-        if len(Inventory) > 0:
-            if keys.is_w_pressed():
-                addToScreen(Scene, Stored[0], c, r)
-                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
-                r += pixelRatio
-                Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
-            elif keys.is_d_pressed():
-                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c+pixelRatio, r-pixelRatio)
-            elif keys.is_a_pressed():
-                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c-pixelRatio, r-pixelRatio)
-            else:
-                print("+")
-            printScreen(Scene)
-            # printScreen(Scene)
-            # continue
+
     
+    # Placing the block, super crucial
     if (keys.is_q_pressed()) and not keys.is_w_pressed() and not keys.is_d_pressed() and not keys.is_a_pressed() and not keys.is_s_pressed() and not keys.is_space_pressed():
         if colorMode:
             if erase:
@@ -915,7 +898,7 @@ while not keys.is_esc_pressed():
                                 addToScreen(Scene, spriteDict[Inventory[previousNumber]], c - pixelRatio, r)
                             elif Direction == "Down":
                                 addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r - pixelRatio)
-                            elif Direction == "Up":
+                            elif Direction == "Up" and r < sceneLength - 3*pixelRatio:
                                 addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r + pixelRatio)
                         except:
                             print(f"{red} Error: {reset} {Inventory[previousNumber]} not in spriteDict")
@@ -1011,6 +994,12 @@ while not keys.is_esc_pressed():
     #moving blocks around
     #Up and Down
     if keys.is_w_pressed() and r < sceneLength - 3*pixelRatio  and not Stored == [] and isJumping < 1:
+        if keys.is_q_pressed():
+            if r < sceneLength - pixelRatio*3:
+                addToScreen(Scene, Stored[0], c, r)
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
+                r += pixelRatio
+                Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
         # Add this if using sprite taller than pixelRatio
         # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         blockAbove = scanArea(Scene, (c, r + pixelRatio), pixelRatio, pixelRatio)
@@ -1087,6 +1076,9 @@ while not keys.is_esc_pressed():
         keys.keys_pressed.discard(all)
     #Left and Right
     if keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == [] or (keys.is_d_pressed() and isJumping > 0 and isJumping < 3 and c < len(Scene[0]) - pixelRatio):
+        if keys.is_q_pressed():
+            addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c+pixelRatio, r-pixelRatio)
+            # continue
         # Add this if using sprite wider than pixelRatio
         # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
         # isSpriteNinja = sprites[rc%mod] == "Ninja"
@@ -1131,6 +1123,9 @@ while not keys.is_esc_pressed():
         # keys.clear_pressed_keys()
         keys.keys_pressed.discard(all)
     elif keys.is_a_pressed() and c > 0 and not Stored == [] or (keys.is_a_pressed() and isJumping > 0 and isJumping < 3 and c > 0):
+        if keys.is_q_pressed():
+            addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c-pixelRatio, r-pixelRatio)
+            # continue
         # isSpriteNinja = sprites[rc%mod] == "Ninja"
         #RTotates character to face left
         if Direction != "Left" and isSpriteNinja and not colorMode:
