@@ -126,7 +126,7 @@ def printScreen(screen, clear=True, hideCursor=True):
 
 
 #Add lines to a screen screen at bottom left corner of drawing with (x, y)
-def addToScreen(screen, obj, colIndex, rowIndex):
+def addToScreen(screen, obj, colIndex, rowIndex, getDrawnOver = False):
     # The pixels that are being drawn over when drawing new Image
     try:
         drawnOver = []
@@ -140,6 +140,8 @@ def addToScreen(screen, obj, colIndex, rowIndex):
         # Returns a list with the [drawnOver Image, the column it was at, and the row on the screen it was at]
         # To replace drawn over area call this function by setting it equal to something
         # Then say addToScreen(screen, something[0], something[1], something[2])
+        if getDrawnOver:
+            return screen
         return [drawnOver, colIndex, rowIndex]
     except IndexError:
         raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
@@ -154,7 +156,7 @@ def getFromScreen(screen, colIndex, rowIndex, height, width):
 
 #Add colors only on certain color pixels
 #Is less efficient because it has to add eahc pixel individually in order to check
-def addToScreenOnColor(screen, obj, onColor, colIndex, rowIndex):
+def addToScreenOnColor(screen, obj, onColor, colIndex, rowIndex, getDrawnOver = False):
     # The pixels that are being drawn over when drawing new Image
     try:
         drawnOver = []
@@ -168,13 +170,14 @@ def addToScreenOnColor(screen, obj, onColor, colIndex, rowIndex):
             for j, pixel in enumerate(row):
                 if screen[screenLength - (objLength+rowIndex)+i][colIndex+j] == onColor:
                     screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel
-                    
+        if getDrawnOver:
+            return screen
         return [drawnOver, colIndex, rowIndex]
     except IndexError:
         raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
     
 #Add colors from object given that are from given color
-def addToScreenWithColor(screen, obj, withColor, colIndex, rowIndex):
+def addToScreenWithColor(screen, obj, withColor, colIndex, rowIndex, getDrawnOver = False):
     # The pixels that are being drawn over when drawing new Image
     try:
         drawnOver = []
@@ -189,12 +192,14 @@ def addToScreenWithColor(screen, obj, withColor, colIndex, rowIndex):
                 #checks if current pixel is color from obj that matches with color given
                 if pixel in withColor:
                     screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel  
+        if getDrawnOver:
+            return screen
         return [drawnOver, colIndex, rowIndex]
     except IndexError:
         raise ValueError(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}")
 
 #Add colors from the obj to the screen as long as its not the color that is specified
-def addToScreenWithoutColor(screen, obj, withoutColor, colIndex, rowIndex):
+def addToScreenWithoutColor(screen, obj, withoutColor, colIndex, rowIndex, getDrawnOver = False):
     # The pixels that are being drawn over when drawing new Image
     try:
         drawnOver = []
@@ -211,6 +216,8 @@ def addToScreenWithoutColor(screen, obj, withoutColor, colIndex, rowIndex):
                     screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = pixel
                 # else:
                 #     screen[screenLength - (objLength+rowIndex)+i][colIndex+j] = black + "  " + reset
+        if getDrawnOver:
+            return screen
         return [drawnOver, colIndex, rowIndex]
     except IndexError:
         raise ValueError(print(f"Index ({colIndex, rowIndex}) out of bounds for \nLength:{len(screen)}\nWidth:{len(screen[0])}"))

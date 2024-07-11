@@ -20,8 +20,19 @@ netherLevelIndex = 3
 netherLevel = backgroundBig.getPixel(netherLevelIndex)
 netherLevel.replacePixels(netherLevel.getPixel(0, 0), backgroundColor)
 netherLevel = netherLevel.getImage()
+#newLevel with index 4
+startWorldIndex = 4
+startWorld = backgroundBig.getPixel(startWorldIndex)
+startWorld.replacePixels(startWorld.getPixel(0, 0), backgroundColor)
+startWorld = startWorld.getImage()
+
+
 #replacing all sprites to have same background color, as well as background color
 chooseBackgroundIndex = 2
+#getting world scale
+scaleOfWorld = backgroundBig.getPixel(chooseBackgroundIndex).getWidth()
+heightOfWorld = backgroundBig.getPixel(chooseBackgroundIndex).getLength()
+
 newBlack = toolsBig.getPixel(0); replacePixel = backgroundBig.getPixel(chooseBackgroundIndex)
 colorNew = newBlack.getPixel(0, 0); newReplace = replacePixel.getPixel(0, 0)
 newBlack.replacePixels(colorNew, backgroundColor); replacePixel.replacePixels(newReplace, backgroundColor)
@@ -31,6 +42,10 @@ backgroundBig = replacePixel.getImage()
 #Sets newBlack as the go to background color
 newBlack = newBlack.getPixel(0, 0)
 newBlack = getColorFromAnsi(newBlack)
+
+
+
+
 
 
 
@@ -47,10 +62,45 @@ height = int(14*1)
 width = int(22*1)
 scale = 1
 predefinedSquare = square(pixelRatio, pixelRatio, backgroundColor)
+
+
+#Displacement for adding inventory and hearts to top
+globalDisplacement = pixelRatio*2 - 8 + 1
+
+#Moving left and right
+#Important world generation stuff
+#current chunk
+Chunk = [0, 0]
+#length of world
+worldWidth = 0  
+#height of world
+worldHeight = 0
+sideBySideView = {}
+chunkPosition = {}
+time.sleep(1)
+for i in range(0, int(scaleOfWorld/(pixelRatio*width*scale))):
+    worldWidth += 1
+    worldHeight = 0
+    # sideBySideView[i] = scanArea(backgroundBig, (i*width*pixelRatio, 0), height*pixelRatio, width*pixelRatio)
+    for j in range(0, int(heightOfWorld/(pixelRatio*height*scale))):
+        areaScaned = scanArea(backgroundBig, (i*width*pixelRatio, heightOfWorld-pixelRatio*height*scale - pixelRatio - j*pixelRatio*height*scale), height*pixelRatio, width*pixelRatio)
+        if j == 0:  
+            sideBySideView[i] = areaScaned
+        chunkPosition[(i, j)] = areaScaned
+        worldHeight += 1
+
+
+
+worldLength = len(sideBySideView)
+backgroundBig = sideBySideView[0]
+
+
+
+
 #initliaze a inventory
 #ITem perimeter color
 inventoryPerimeterColor = white
-Inventory = ["Diamond Pickaxe"]
+Inventory = []
 lastInventory = Inventory
 #check if Scene.txt exists and if it does, then it will load the scene
 if os.path.exists("Scene.txt"):
@@ -59,19 +109,11 @@ if os.path.exists("Scene.txt"):
     points = getScene("Points.txt")[0]
     # InventoryDrawnOver = getScene("Points")[1]
     points = int(points[0])
-
-    # print(f"{yellow}Inventory: {Inventory} {reset}")
-    # print(f"{yellow}Points: {points} {reset}")
-    # print(isinstance(Inventory, list))
-    # time.sleep(0.25)
-
 else:
     # print(f"{blue} New Game {reset}")
     Scene = screen(pixelRatio*height*scale + 9, pixelRatio*width*scale, backgroundColor)
     #Add predetermined background
     addToScreen(Scene, backgroundBig, 0, 0)
-    # InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
-    # time.sleep(0.25)
 sceneLength = len(Scene)
 sceneWidth = len(Scene[0])
 
@@ -82,15 +124,13 @@ netherWorld = netherLevel
 currentWorld = 0
 worldToTravel = {
     0: Scene,
-    1: netherWorld
+    1: startWorld,
+    2: netherWorld
 }
 amountOfWorlds = len(worldToTravel)
 
 
 
-# Clear screen and prints it
-# clear()
-# printScreen(Scene)
 
 # Hide cursor
 sys.stdout.write("\033[?25l")
@@ -102,7 +142,7 @@ replace = numbers.getPixel(0)
 replacePixel = replace.getPixel(0, 0)
 replace.replacePixels(replacePixel, backgroundColor)
 
-
+#Setting up the number sprites for the game
 numbers = replace.getImage()
 numbersHeight = 7
 numbersWidth = 5
@@ -110,11 +150,13 @@ numbersDict = {}
 for i in range(0, 11):
     numbersDict[i] = scanArea(numbers, (i*numbersWidth, 0),numbersHeight, numbersWidth)
 
+
+#Setting up the letter sprites for the game
 replace = letters.getPixel()
 replacePixel = replace.getPixel(0, 0)
 replace.replacePixels(replacePixel, backgroundColor)
-
 letters = replace.getImage()
+#Letter height and width
 lettersHeight = 9
 lettersWidth = 7
 lettersDict = {}
@@ -142,15 +184,34 @@ lettersDict["'"] = scanArea(letters, (30*lettersWidth, 0), lettersHeight, letter
 
 #Setting up new (16x16) Sprites
 blocks = spriteSheet
+SpritesBlankPeople = ["Straight","Down", "Up"]
+SpritesWeapons = ["Torch", "Torch Down", "Torch Up",
+                  "Diamond Pickaxe", "Diamond Pickaxe Down", "Diamond Pickaxe Up", 
+                  "Knife", "Knife Down", "Knife Up",
+                  "Iron Pickaxe", "Iron Pickaxe Down", "Iron Pickaxe Up",
+                  "Iron Sword", "Iron Sword Down", "Iron Sword Up"]
 SpritesPlatform = ["Ladder", "Platform", "Door", "Small Portal"]
-SpritesPeople = ["Ninja", "Ninja Crouch", "Bow Staff Ninja", "Angel","High Res Ninja", "High Res Ninja Down", "High Res Ninja Up"]
-SpritesDecoration = ["Window","Brick","Fire", "Netherack", "Nether Portal", "Obsidian"]
-SpritesTerrain = ["Grass", "Dirt", "Grass Connector", "Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore"]
+SpritesPeople = ["Ninja", "Ninja Crouch", "Bow Staff Ninja", "Angel",
+                 "High Res Ninja", "High Res Ninja Down", "High Res Ninja Up"] 
+                #  "High Res Ninja Torch", "High Res Ninja Torch Down", "High Res Ninja Torch Up",
+                #  "Blank High Res Ninja", "Blank High Res Ninja Down", "Blank High Res Ninja Up"]
+SpritesDecoration = ["Window","Brick","Fire", "Netherack", "Nether Portal", "Obsidian", "Chest", "Item Frame"]
+SpritesTerrain = ["Grass", "Dirt", "Grass Connector", "Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore", "Wood Plank", "Stone Brick", "Mossy Cobblestone"]
 spriteDict = {}
 
 #Setting up sprites for the big sprite sheet
 #Scanning the sprite sheet and sets each sprite to a dict valuale 
 #Corresponding to the sprite name from sprites
+
+for i in range(0, len(SpritesBlankPeople)):
+    scanned = scanArea(blocks, (i*pixelRatio, pixelRatio*5), pixelRatio, pixelRatio)
+    spriteDict[SpritesBlankPeople[i]] = scanned
+
+for i in range(0, len(SpritesWeapons)):
+    scanned = scanArea(blocks, (i*pixelRatio, pixelRatio*4), pixelRatio, pixelRatio)
+    spriteDict[SpritesWeapons[i]] = scanned
+
+
 
 for i in range(0, len(SpritesPlatform)):
     scanned = scanArea(blocks, (i*pixelRatio, pixelRatio*3), pixelRatio, pixelRatio)
@@ -171,8 +232,22 @@ for i in range(0, len(SpritesTerrain)):
 sprites = []
 #Adds each sprite to the sprite list
 for i, sprite in enumerate(spriteDict):
+    # if sprite not in SpritesWeapons and sprite not in SpritesBlankPeople:
     sprites.append(sprite)
+
+# #Use this if want to use background that isnt blank
+from copy import deepcopy
+# predefinedSquare = deepcopy(spriteDict["Stone Brick"])
+# for sprite in spriteDict:
+#     if sprite != "Ninja" and "High Res Ninja" not in sprite: 
+#         Change = spriteDict[sprite]
+#         ToLookOver = deepcopy(predefinedSquare)
+#         addToScreenWithoutColor(ToLookOver, Change, newBlack, 0, 0)
+#         spriteDict[sprite] = ToLookOver
+# spriteDict["Stone Brick"] = predefinedSquare
+
 spriteDict["Ninja"] = spriteDict["High Res Ninja"]
+
 # del spriteDict["High Res Ninja"]
 #ITEM SET UP
 #Setting up the 8x8 sprite sheet for items in game
@@ -190,9 +265,9 @@ itemsNames = []
 
 #Setting up (8x8) sprites
 ItemsLevels = ["Heart","Experience Orb", "Wings", "Ninja", "Mana Orb", "Gold Coin"]
-ItemsDecorations = ["Window", "Ladder", "Platform", "Door", "Small Portal", "Fire"]
-ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian","Nether Portal", "Netherack"]
-ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore"]
+ItemsDecorations = ["Window", "Ladder", "Platform", "Door", "Small Portal", "Fire", "Chest", "Item Frame", "Item Frame Check"]
+ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian","Nether Portal", "Netherack", "Wood Plank"]
+ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore", "Stone Brick", "Mossy Cobblestone"]
 ItemsTools = ["Diamond Pickaxe", "Wood Sword", "Diamond Pic", "Flint 'n Steel"]
 ItemsItems = ["Diamond", "Iron Ingot", "Gold Ingot", "Emerald"]
 
@@ -253,12 +328,19 @@ for i, spriteName in enumerate(sprites):
 # time.sleep(1)
 spriteDict["Background"] = predefinedSquare
 #Defining types of sprites that are in the background, as in can pass through on fall
-SpritesInBackground = [predefinedSquare, spriteDict["Small Portal"], spriteDict["Fire"], mirror(spriteDict["Small Portal"]), mirror(spriteDict["Fire"])]
+backgroundSprites = ["Small Portal", "Fire", "Chest"]
+#Creating background sprites that are in the background such that you can walk through them
+SpritesInBackground = [predefinedSquare]
+for backgroundSprite in backgroundSprites:
+    SpritesInBackground.append(spriteDict[backgroundSprite])
+    SpritesInBackground.append(mirror(spriteDict[backgroundSprite]))
+#blocks a character can climb
+climbing = ["Ladder", "Platform"]
 #Blocks a charcter can pass through
-passThrough = [predefinedSquare, "Ladder", "Nether Portal", "Platform", "Door", "Small Portal", "Fire"]
+passThrough = [predefinedSquare, "Background", "Ladder", "Nether Portal", "Platform", "Door", "Small Portal", "Fire","Chest"]
 Angel = spriteDict["Angel"]
 Ninja = spriteDict["Ninja"]
-
+Chest = {}
 
 #ANIMATION SPRITES
 portalsOnScreen = {
@@ -284,7 +366,7 @@ spriteBlack = getColorFromAnsi(spriteBlack)
 
 #A function that takes a string and adds the correspinding sprite letters to screen
 #Example "{1}Hello World{r}" prints a red "Hello World" with a reset color at the end of the string
-def addLetterToScreen(Scene, letter : str, color, col, row):
+def addLetter(Scene, letter : str, color, col, row):
     foundColor = 3
     listOfReplacementLetters = []
     ColRow = []
@@ -363,7 +445,6 @@ def calculateScore(scannedArea):
 
 
 
-numDrawnOver = addNumToScreen(Scene, 0, 0, 0)
 #create dictionary of length of spriteDict and set each sprite to a number
 MapMaker = dict()
 for i, sprite in enumerate(spriteDict):
@@ -438,7 +519,7 @@ def displayInventory(Scene, inventory : list, col, row):
         listofReplacementItems.append(addToScreenWithoutColor(Scene, createPermiter(itemsDict[item], perimeterSize, changeColor), newBlack, col, row-2*perimeterSize)[0])
         # listofReplacementItems.append(addToScreenWithoutColor(Scene, itemsDict[item], newBlack, col, row-1)[0])
         col += itemWidth + perimeterSize*2
-        if col >= 18*(itemWidth + 2*perimeterSize):
+        if col >= 16*(itemWidth + 2*perimeterSize):
             col = 0
             row -= (itemHeight + 2*perimeterSize)
     return [listofReplacementItems, ColRow]
@@ -510,9 +591,153 @@ def checkForItemPrevious(item, checkIfCollectible = False):
     return False
 
 
+#Get cordinates depending on direction
+def getDirection(Direction):
+    col = 0
+    row = 0
+    if Direction == "Right":
+        col += pixelRatio
+    elif Direction == "Left":
+        col -= pixelRatio
+    elif Direction == "Up":
+        row += pixelRatio
+    elif Direction == "Down":
+        row -= pixelRatio
+    return [col, row]
+
+#Select Block we are lloking at if in inventory
+def selectBlockInInventory(Direction):
+    colRow = getDirection(Direction)
+    global rc
+    global previousNumber
+    global inventoryChange
+    
+    scanForBlock = scanArea(Scene, (c + colRow[0], r + colRow[1]), pixelRatio, pixelRatio)
+    itemCheck = checkForItem(scanForBlock)
+    if itemCheck in Inventory:
+        previousNumber = Inventory.index(itemCheck)
+        rc = previousNumber
+        inventoryChange = True
+        return itemCheck
+    return None
+
+def setUPUI(Scene):
+    #SETTING UP STARTING UI AREA
+    drawRectangle(Scene, rgb(0, 255, 255), (0, len(Scene)-pixelRatio*1 - itemHeight*1), (len(Scene[0]), len(Scene)))
+    drawLine(Scene, black, (0, len(Scene)-pixelRatio*1-itemHeight-1), (len(Scene[0])-1, len(Scene)-pixelRatio*1-itemHeight-1))
+    amount = 8
+    for i in range(1, amount):
+        addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
+        addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight-1)
+        addToScreenWithoutColor(Scene, itemsDict["Mana Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 3*itemHeight-1)
+        addToScreenWithoutColor(Scene, itemsDict["Gold Coin"], newBlack, sceneWidth - i*itemWidth - (amount-1)*itemWidth, sceneLength - 3*itemHeight-1)
+    switchedSprite = False
+
+#Moving Scene like checkPortal
+def moveScene(Scene, Stored, Direction):
+    global Chunk
+    global sideBySideView
+    global chunkPosition
+    global inventoryChange
+    global changedWorld
+    global portalsOnScreen
+    global overwriteSpot
+    global c
+    global r
+
+    # if currentWorld > 0 and currentWorld < amountOfWorlds - 1:
+    #     worldToTravel[currentWorld] = [[item for item in sublist] for sublist in Scene]
+    #     addToScreen(Scene, Stored[0], c, r)
+    #     if Direction == "Right":
+    #         currentWorld += 1
+    #         c = 0
+    #     elif Direction == "Left":
+    #         currentWorld -= 1
+    #         c = sceneWidth - pixelRatio
+    # else:
+    #     return    
+    ChunkChange = [0, 0]
+    previousC = c
+    previousR = r
+    if Direction == "Right":
+        if Chunk[0] < worldWidth - 1:
+            chunkPosition[tuple(Chunk)] = [[item for item in sublist] for sublist in Scene]
+            ChunkChange[0] += 1
+            addToScreen(Scene, Stored[0], c, r)
+            c = 0
+        else:
+            return Stored
+    elif Direction == "Left":
+        if Chunk[0] > 0:
+            chunkPosition[tuple(Chunk)] = [[item for item in sublist] for sublist in Scene]
+            ChunkChange[0] -= 1
+            addToScreen(Scene, Stored[0], c, r)
+            c = sceneWidth - pixelRatio
+        else:
+            return Stored
+    elif Direction == "Up":
+        if Chunk[1] > 0:
+            chunkPosition[tuple(Chunk)] = [[item for item in sublist] for sublist in Scene]
+            ChunkChange[1] -= 1
+            #To place blocks below you possible
+            if not keys.is_q_pressed():
+                addToScreen(Scene, Stored[0], c, r)
+            r = 0
+        else:
+            addToScreen(Scene, overwriteSpot, c, r)
+            return Stored
+    elif Direction == "Down":
+        if Chunk[1] < worldHeight - 1:
+            chunkPosition[tuple(Chunk)] = [[item for item in sublist] for sublist in Scene]
+            ChunkChange[1] += 1
+            addToScreen(Scene, Stored[0], c, r)
+            r = sceneLength - globalDisplacement - pixelRatio
+        else:
+            return Stored
+    else:
+        return Stored
+    # inventoryChange = True
+    # changedWorld = True
+    ChunkChange[0] += Chunk[0]
+    ChunkChange[1] += Chunk[1]
+    chunkToScan = scanArea(chunkPosition[tuple(ChunkChange)], (0,0), sceneLength-globalDisplacement, sceneWidth)
+    checkBlock = scanArea(chunkToScan, (c, r), pixelRatio, pixelRatio)
+    checkBlockItem = checkForItem(checkBlock)
+    #If block below is not a background block or pass through, then return 
+    if not keys.is_e_pressed():
+        if not (checkBlockItem in climbing and Direction == "Down" and keys.is_s_pressed()):
+            if not (checkBlockItem in climbing and Direction == "Up" and keys.is_w_pressed()):
+                    if (checkBlockItem != "Background"): 
+                        c = previousC
+                        r = previousR
+                        addToScreen(Scene, overwriteSpot, c, r)
+                        return Stored
+    #otherwise continue
+    Chunk = ChunkChange
+    if overwriteSpot == False:
+        overwriteSpot = spriteDict["Ninja"]
+    addToScreen(Scene, chunkToScan, 0, 0)
+    # setUPUI(Scene)
+    if keys.is_e_pressed():
+        # rowCol = getDirection(Direction)
+        addToScreen(Scene, predefinedSquare, c, r)
+    if Direction == "Right":
+        # keys.clear_pressed_keys()
+        overwriteSpot = spriteDict["High Res Ninja"]
+    elif Direction == "Left":
+        overwriteSpot = mirror(spriteDict["High Res Ninja"])
+    Direction = Direction
+    Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+    portalsOnScreen = {}
+    scanForAnimationSprite(Scene, pixelRatio)
+    printScreen(Scene)
+    return Stored
+
+
+
 #Create a function to chekc interaction with portal
 def checkPortal(Scene, itemToCheck, c, r):
-    if not erase and not colorMode and itemToCheck == "Small Portal" and sprites[rc%mod] == "Ninja":
+    if not erase and not colorMode and itemToCheck == "Small Portal" and isSpriteNinja:
         addToScreen(Scene, Stored[0], c, r)
         #Saves current screen to world
         global currentWorld
@@ -546,17 +771,31 @@ def checkPortal(Scene, itemToCheck, c, r):
 #CReate a function to move charcter down if it is on a background color of predefinedSquare
 def checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwritespot):
     #Checks if blockBewlow is a predefinedSquare and if it is not a ladder (a block that the character can hold onto)
-    if blockBelow in SpritesInBackground and checkForItem(Stored[0]) not in ["Ladder"]:
-        # printScreen(Stored[0])
-        # time.sleep(1)
-        currentBlock = addToScreen(Scene, Stored[0], c, r)[0]
-        r -= pixelRatio
-        if overwritespot == False:
-            overwritespot = spriteDict["Ninja"]
-        Stored = addToScreenWithoutColor(Scene, overwritespot, newBlack, c, r)
-        printScreen(Scene)
-        time.sleep(0.1)
-        return [r, Stored]
+    itemCheck = checkForItem(Stored[0])
+    if itemCheck not in climbing:
+        if blockBelow in SpritesInBackground:
+            # printScreen(Stored[0])
+            # time.sleep(1)
+            currentBlock = addToScreen(Scene, Stored[0], c, r)[0]
+            r -= pixelRatio
+            if overwritespot == False:
+                overwritespot = spriteDict["Ninja"]
+            Stored = addToScreenWithoutColor(Scene, overwritespot, newBlack, c, r)
+            printScreen(Scene)
+            time.sleep(0.1)
+            return [r, Stored]
+        elif r == 0 and Stored[0] == predefinedSquare:
+            print(f"{red} Glitching out {reset}")
+            drawn = addToScreen(Scene, Stored[0], c, r)[0]
+            #Check if can move between scenes and move character
+            previousR = r
+            Stored = moveScene(Scene, Stored, "Down")
+            if previousR != Stored[2]:
+                r = Stored[2]
+            else: 
+                r = previousR
+                
+                addToScreenWithoutColor(Scene, drawn, newBlack, c, r)
     return [r, Stored]
 
 #Starts the portal checker for animation
@@ -605,8 +844,8 @@ class CheckPortalThread(threading.Thread):
             # if change and not self.stop_flag: 
             #     # printScreen(Scene)
 #Start threaqd (Has LAg)
-t = CheckPortalThread()
-t.start()
+# t = CheckPortalThread()
+# t.start()
 # print("Started Portal Thread")
 
 #If want to play with micro blocks uncomment
@@ -615,7 +854,7 @@ t.start()
 # sprites = itemsNames
 # Scene = screen(pixelRatio*height*scale, pixelRatio*width*scale, backgroundColor)
 isJumping = False
-
+Holding = "Iron Pickaxe"
 #Add names of sprites that will be animated by flipping them
 animatingSprites = ["Small Portal", "Fire"]
 #Check if any of the animating sprites are on screen
@@ -636,25 +875,26 @@ def scanForAnimationSprite(Scene, pixelRatio):
 #Check if any of the animating sprites are on screen
 scanForAnimationSprite(Scene, pixelRatio)
 
-#SETTING UP STARTING UI AREA
-drawRectangle(Scene, rgb(0, 255, 255), (0, len(Scene)-pixelRatio*1 - itemHeight*1), (len(Scene[0]), len(Scene)))
-drawLine(Scene, black, (0, len(Scene)-pixelRatio*1-itemHeight-1), (len(Scene[0])-1, len(Scene)-pixelRatio*1-itemHeight-1))
-amount = 8
-for i in range(1, amount):
-    addToScreenWithoutColor(Scene, itemsDict["Heart"], newBlack, sceneWidth - i*itemWidth, sceneLength - itemHeight-1)
-    addToScreenWithoutColor(Scene, itemsDict["Experience Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 2*itemHeight-1)
-    addToScreenWithoutColor(Scene, itemsDict["Mana Orb"], newBlack, sceneWidth - i*itemWidth, sceneLength - 3*itemHeight-1)
-    addToScreenWithoutColor(Scene, itemsDict["Gold Coin"], newBlack, sceneWidth - i*itemWidth - (amount-1)*itemWidth, sceneLength - 3*itemHeight-1)
-switchedSprite = False
+switchedSprite = None
+setUPUI(Scene)
 
 #Adds every item in game to inventory (temporary)
-Inventory = ["Stone"]
+# Inventory = ["Stone"]
+Inventory = []
+for item in itemsDict.keys():
+    if item != "Wings" and item in spriteDict and item != "Ninja" and item not in SpritesWeapons and item not in SpritesBlankPeople:
+        Inventory.append(item)
+    inventoryChange = True
+lastInventory = Inventory
 #VARIABLE TO HOLD INVENTORY AND WHAT IT DREW OVER WHEN PLACING
 # InventoryDrawnOver = displayInventory(Scene, Inventory, 0, sceneLength - itemHeight)
 InventoryDrawnOver = [[]]
 #when a change of inventory happens, set to true
 inventoryChange = True
 
+#Adding points
+numDrawnOver = addNumToScreen(Scene, points, 17*pixelRatio-pixelRatio, 14*pixelRatio+1)
+addLetter(Scene, "Points:", yellow, 14*pixelRatio-pixelRatio, 14*pixelRatio)
 # for item in itemsDict.keys():
 #     if item != "Wings":
 #         Inventory.append(item)
@@ -674,19 +914,20 @@ listener.start()
 previousNumber = 0
 Direction = "Right"
 isSpriteNinja = True
+# addLetter(Scene, "Tab:shift to select items", yellow, 0, 13*pixelRatio+1)
 #GAME LOOP
 # Start of engine
 while not keys.is_esc_pressed():
 
 
     #Pause the game
-    if keys.is_p_pressed():
+    if keys.is_p_pressed() and keys.is_shift_pressed():
         keys.keys_pressed.discard(all)
         t.pause()
-        lettersAdded = addLetterToScreen(Scene, "PAUSED", red, 10*pixelRatio-pixelRatio, 13*pixelRatio+1)
+        lettersAdded = addLetter(Scene, "PAUSED", red, 10*pixelRatio-pixelRatio, 13*pixelRatio+1)
         printScreen(Scene)
         time.sleep(0.5)
-        while not keys.is_p_pressed():
+        while not keys.is_p_pressed() or not keys.is_shift_pressed():
             if keys.is_esc_pressed():
                 break
             # time.sleep(0.1)
@@ -710,7 +951,7 @@ while not keys.is_esc_pressed():
         printScreen(Scene)
         lastInventory = Inventory
         if switchedSprite:
-            time.sleep(0.3)
+            # time.sleep(0.3)
             switchedSprite = False
         inventoryChange = False
 
@@ -722,31 +963,32 @@ while not keys.is_esc_pressed():
             #Resets left and right movement momentum if keys are pressed from second expression
             if isJumping > 0:
                 isJumping = 0
-            blockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
-            #Check blocks below to see if can fall
-            results = checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwriteSpot)
-            if r != results[0]:
-                r = results[0]
-                Stored = results[1]
-                if switchedSprite:
-                    switchedSprite = False
-                #Checks if block is a portal to transfer dimensions
-                checkPortal(Scene, checkForItem(Stored[0]), c, r)
-                #allows continous falling of block (might change)
-                if "Wings" not in Inventory:
-                    continue
-                else:
-                    #Resets left and right movement while falling if on block, prevents glitch where cant double jump
-                    if scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio) not in SpritesInBackground:
-                    #     printScreen(scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio))
-                    #     time.sleep(1)
-                          isJumping = 0
-                    #If on air allows to move left or right with wings
-                    #Movement of two blocks with wings
+            if r > 0:
+                blockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
+                #Check blocks below to see if can fall
+                results = checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwriteSpot)
+                previousR = r
+                if previousR != results[0]:
+                    r = results[0]
+                    Stored = results[1]
+                    if switchedSprite:
+                        switchedSprite = False
+                    #Checks if block is a portal to transfer dimensions
+                    checkPortal(Scene, checkForItem(Stored[0]), c, r)
+                    #allows continous falling of block (might change)
+                    if "Wings" not in Inventory:
+                        continue
                     else:
-                        isJumping = 2
+                        #Resets left and right movement while falling if on block, prevents glitch where cant double jump
+                        if scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio) not in SpritesInBackground:
+                            isJumping = 0
+                        #If on air allows to move left or right with wings, we have Movement of two blocks with wings
+                        else:
+                            isJumping = 2
             else:
-                isJumping = 0
+                addToScreen(Scene, Stored[0], c, r)
+                Stored = moveScene(Scene, Stored, "Down")
+                # isJumping = 0
     #Replaces current ninja sprite if has wings
     if "Wings" in Inventory and spriteDict["Ninja"] != Angel and not colorMode and not erase:
         spriteDict["Ninja"] = Angel
@@ -769,8 +1011,8 @@ while not keys.is_esc_pressed():
                 addToScreen(Scene, sprite, numDrawnOver[1][i][0], numDrawnOver[1][i][1])
             changedWorld = False
             #adds new number to screen
-            # addLetterToScreen(Scene, "PAUSED", red, 10*pixelRatio-pixelRatio, 13*pixelRatio+1)
-            numDrawnOver = addNumToScreen(Scene, points, 10*pixelRatio-pixelRatio, 14*pixelRatio+1)
+            # addLetter(Scene, "PAUSED", red, 10*pixelRatio-pixelRatio, 13*pixelRatio+1)
+            numDrawnOver = addNumToScreen(Scene, points, numDrawnOver[1][0][0], numDrawnOver[1][0][1])
             printScreen(Scene)
             lastPoints = points
         else:
@@ -786,8 +1028,8 @@ while not keys.is_esc_pressed():
                 continue
             # Direction = False
             if numberPressed == '0':
-                rc = 9
-                previousNumber = 9
+                rc = lenInventory - 1
+                previousNumber = rc
             elif numberPressed == False:
                 if keys.is_tab_pressed(): 
                     rc  = (previousNumber + 1)%(AmountOfItemsInSpriteDict-1)
@@ -850,7 +1092,7 @@ while not keys.is_esc_pressed():
 
 
     #Clears the screen and saves the current screen to last replacement
-    if keys.is_c_pressed() and  Stored != []:
+    if keys.is_c_pressed() and keys.is_ctrl_pressed() and Stored != []:
         if not Stored == []:
             addToScreen(Scene, Stored[0], c, r)
         portalsOnScreen = {}
@@ -861,7 +1103,7 @@ while not keys.is_esc_pressed():
         erase = True
         time.sleep(.1)
     #undoes clear screen
-    if keys.is_z_pressed() and not drawnOver == []:
+    if keys.is_z_pressed() and not drawnOver == [] and keys.is_ctrl_pressed():
         for i, row in enumerate(Scene):
             for j, col in enumerate(row):
                 Scene[i][j] = drawnOver[i][j]
@@ -872,7 +1114,7 @@ while not keys.is_esc_pressed():
 
     
     # Placing the block, super crucial
-    if (keys.is_q_pressed()) and not keys.is_w_pressed() and not keys.is_d_pressed() and not keys.is_a_pressed() and not keys.is_s_pressed() and not keys.is_space_pressed():
+    if (keys.is_q_pressed()) and ((not keys.is_w_pressed() and not keys.is_d_pressed() and not keys.is_a_pressed() and not keys.is_s_pressed() and not keys.is_space_pressed()) or not isSpriteNinja):
         if colorMode:
             if erase:
                 if Stored == []:    
@@ -892,14 +1134,35 @@ while not keys.is_esc_pressed():
                 if isSpriteNinja:
                     if len(Inventory) > 0:
                         try:
-                            if Direction == "Right":
-                                addToScreen(Scene, spriteDict[Inventory[previousNumber]], c + pixelRatio, r)
-                            elif Direction == "Left":
-                                addToScreen(Scene, spriteDict[Inventory[previousNumber]], c - pixelRatio, r)
-                            elif Direction == "Down":
-                                addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r - pixelRatio)
+                            cToChange = c
+                            rToChange = r
+                            if Direction == "Right" and c < sceneWidth - pixelRatio:
+                                cToChange = c + pixelRatio
+                                # addToScreen(Scene, spriteDict[Inventory[previousNumber]], c + pixelRatio, r)
+                            elif Direction == "Left" and c > 0:
+                                cToChange = c - pixelRatio
+                                # addToScreen(Scene, spriteDict[Inventory[previousNumber]], c - pixelRatio, r)
+                            elif Direction == "Down" and r > 0:
+                                rToChange = r - pixelRatio
+                                # addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r - pixelRatio)
                             elif Direction == "Up" and r < sceneLength - 3*pixelRatio:
-                                addToScreen(Scene, spriteDict[Inventory[previousNumber]], c, r + pixelRatio)
+                                rToChange = r + pixelRatio
+                            if cToChange != c or rToChange != r:
+                                checkBlock = scanArea(Scene, (cToChange, rToChange), pixelRatio, pixelRatio)
+                                #place block if no block is there
+                                if checkBlock == predefinedSquare:
+                                    addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, cToChange, rToChange)
+                                    if Inventory[previousNumber] in animatingSprites:
+                                        portalsOnScreen[(cToChange, rToChange)] = [spriteDict[Inventory[previousNumber]], predefinedSquare]
+                                #Checking interaction items
+                                else:
+                                    #checking for itemFrame
+                                    addToScreenWithColor(checkBlock, itemsDict["Item Frame Check"], newBlack, 4, 4)
+                                    addToScreenWithoutColor(checkBlock, itemsDict["Item Frame Check"], newBlack, 4, 4)
+                                    checkItem = checkForItem(checkBlock)
+                                    if checkItem == "Item Frame":
+                                        addToScreenWithoutColor(Scene, itemsDict["Item Frame Check"], newBlack, cToChange+4, rToChange+4)
+                                        addToScreenWithoutColor(Scene, itemsDict[Inventory[previousNumber]], newBlack, cToChange+4, rToChange+4)
                         except:
                             print(f"{red} Error: {reset} {Inventory[previousNumber]} not in spriteDict")
                             pass
@@ -920,17 +1183,66 @@ while not keys.is_esc_pressed():
         time.sleep(.1)
         keys.keys_pressed.discard(all)
 
-    #information about location of block and size of screen
-    #Work on later for other feature as it is deprecated can do other information
-    if keys.is_i_pressed():
-        print(Inventory)
+
+    
+
+    #Select block in inventory depending on block we are looking at
+    if keys.is_c_pressed() and not erase and not keys.is_ctrl_pressed():
+        selectBlockInInventory(Direction)
+
+    if keys.is_z_pressed() and not erase and not keys.is_ctrl_pressed():
+        #Cyclying through items in inventory
+        if Holding == "Diamond Pickaxe":
+            Holding = "Torch"
+        elif Holding == "Torch":
+            Holding = "Knife"
+        elif Holding == "Knife":
+            Holding = "Iron Pickaxe"
+        elif Holding == "Iron Pickaxe":
+            Holding = "Iron Sword"
+        elif Holding == "Iron Sword":
+            Holding = "Diamond Pickaxe"
+
+        #Seeting the different sprites and direction to hold a weapon by pasting it on the empty person sprite
+        torchHolder = addToScreenWithoutColor(deepcopy(spriteDict["Straight"]), spriteDict[f"{Holding}"], newBlack, 0, 0, True)
+        spriteDict["High Res Ninja"] = torchHolder
+        torchHolderDown = addToScreenWithoutColor(deepcopy(spriteDict["Down"]), spriteDict[f"{Holding} Down"], newBlack, 0, 0, True)
+        spriteDict["High Res Ninja Down"] = torchHolderDown
+        torchHolderUp = addToScreenWithoutColor(deepcopy(spriteDict["Up"]), spriteDict[f"{Holding} Up"], newBlack, 0, 0, True)
+        spriteDict["High Res Ninja Up"] = torchHolderUp
+        spriteDict["Ninja"] = torchHolder
+        
+        #have to add part so it doesnt reset direction
+        overwriteSpot = torchHolder
+        Direction = "Right"
+
+        addToScreen(Scene, Stored[0], c, r)
+        addToScreenWithoutColor(Scene, spriteDict["High Res Ninja"], newBlack, c, r)
+        printScreen(Scene)
         time.sleep(0.1)
-        keys.keys_pressed.discard(all)
-    #   clear()
-    #     for items in checkForItemCache:
-    #         printScreen(items)
-    #         print(checkForItemCache[items])
-    #         time.sleep(0.5)
+
+    #Chest interaction
+    if keys.is_i_pressed():
+        checkItem = checkForItem(Stored[0])
+        if checkItem == "Chest":
+            if (c, r) in Chest:
+                Inventory = Chest[(c, r)]
+                inventoryChange = True
+                del Chest[(c, r)]
+            else:
+                Chest[(c, r)] = Inventory
+                Inventory = []
+                inventoryChange = True
+                previousNumber = 0
+            time.sleep(0.1)
+            keys.keys_pressed.discard(all)
+        else:
+            selectBlockInInventory(Direction)
+        #     keys.keys_pressed.discard(all)
+        # elif checkItem == "Item Frame":
+        #     itemFrame = spriteDict["Item Frame"]
+        #     addToScreenWithoutColor(itemFrame, itemsDict[Inventory[previousNumber]], newBlack, 4, 4)
+        #     Stored[0] = itemFrame
     #Changing to ninja
     if keys.is_space_pressed() and not Stored == [] and (sprites[rc%mod] != "Ninja" or erase or colorMode):
         erase = False
@@ -994,16 +1306,9 @@ while not keys.is_esc_pressed():
     #moving blocks around
     #Up and Down
     if keys.is_w_pressed() and r < sceneLength - 3*pixelRatio  and not Stored == [] and isJumping < 1:
-        if keys.is_q_pressed():
-            if r < sceneLength - pixelRatio*3:
-                addToScreen(Scene, Stored[0], c, r)
-                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
-                r += pixelRatio
-                Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+        
         # Add this if using sprite taller than pixelRatio
         # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
-        blockAbove = scanArea(Scene, (c, r + pixelRatio), pixelRatio, pixelRatio)
-        itemToCheck = checkForItem(blockAbove)
         if Direction != "Up" and isSpriteNinja and not colorMode:
             addToScreen(Scene, Stored[0], c, r)
             if Direction == "Left" or Direction == "Down":
@@ -1018,6 +1323,22 @@ while not keys.is_esc_pressed():
             addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
             printScreen(Scene)
             Direction = "Up"
+            continue
+        #To place blocks below if trying to jump and press q
+        blockAbove = scanArea(Scene, (c, r + pixelRatio), pixelRatio, pixelRatio)
+        itemToCheck = checkForItem(blockAbove)
+        if keys.is_q_pressed() and (blockAbove == predefinedSquare or itemToCheck in passThrough) and not erase and Stored[0] == predefinedSquare and isSpriteNinja:
+            if r < sceneLength - pixelRatio*3: 
+                addToScreen(Scene, Stored[0], c, r)
+                Stored = addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r+pixelRatio)
+                printScreen(Scene)
+                # time.sleep(0.1)
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
+                if Inventory[previousNumber] in animatingSprites:
+                    portalsOnScreen[(c, r+pixelRatio)] = [spriteDict[Inventory[previousNumber]], predefinedSquare]
+                r += pixelRatio
+                printScreen(Scene)
+                continue
 
 
         if (blockAbove == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
@@ -1039,6 +1360,7 @@ while not keys.is_esc_pressed():
             isJumping = 1
         #Checks if block is a portal to transfer dimensions
         checkPortal(Scene, itemToCheck, c, r)
+        keys.keys_pressed.discard(all)
     #Moves Down
     elif keys.is_s_pressed() and r > 0 and not Stored == []:
         blockDown = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
@@ -1058,6 +1380,7 @@ while not keys.is_esc_pressed():
             addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
             printScreen(Scene)
             Direction = "Down"
+            continue
         if (blockDown == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
             if overwriteSpot == False:
                 Spot = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
@@ -1076,12 +1399,6 @@ while not keys.is_esc_pressed():
         keys.keys_pressed.discard(all)
     #Left and Right
     if keys.is_d_pressed() and c < len(Scene[0]) - pixelRatio and not Stored == [] or (keys.is_d_pressed() and isJumping > 0 and isJumping < 3 and c < len(Scene[0]) - pixelRatio):
-        if keys.is_q_pressed():
-            addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c+pixelRatio, r-pixelRatio)
-            # continue
-        # Add this if using sprite wider than pixelRatio
-        # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
-        # isSpriteNinja = sprites[rc%mod] == "Ninja"
         #RTotates character to face right
         if Direction != "Right" and isSpriteNinja and not colorMode:
             # keys.clear_pressed_keys()
@@ -1094,7 +1411,47 @@ while not keys.is_esc_pressed():
             if isJumping == 0:
                 printScreen(Scene)
             Direction = "Right"
-        elif Direction != "Right" or Direction == "Right" or isJumping > 0 and isJumping < 3:
+            continue
+
+        if keys.is_q_pressed() and c < sceneWidth - pixelRatio and isSpriteNinja:
+            checkForBackground = scanArea(Scene, (c + pixelRatio, r-pixelRatio), pixelRatio, pixelRatio)
+            if checkForBackground == predefinedSquare:
+                #Animate player placing like erase
+                addToScreen(Scene, Stored[0], c, r)
+                addToScreenWithoutColor(Scene, spriteDict["High Res Ninja Down"], newBlack, c, r)
+                printScreen(Scene)
+                # time.sleep(0.1)
+                addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+                #Placing block
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c+pixelRatio, r-pixelRatio)
+                if Inventory[previousNumber] in animatingSprites:
+                    portalsOnScreen[(cToChange, rToChange)] = [spriteDict[Inventory[previousNumber]], predefinedSquare]
+                printScreen(Scene)
+                time.sleep(0.1)
+        #Attempt to break corner block
+        # elif keys.is_e_pressed() and keys.is_s_pressed() and c < sceneWidth - pixelRatio and r > 0 and isSpriteNinja:
+        #     checkForBackground = scanArea(Scene, (c + pixelRatio, r-pixelRatio), pixelRatio, pixelRatio)
+        #     if checkForBackground != predefinedSquare:
+        #         addToScreen(Scene, Stored[0], c, r)
+        #         addToScreenWithoutColor(Scene, spriteDict["High Res Ninja Up"], newBlack, c, r)
+        #         printScreen(Scene)
+        #         addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+        #         #Erasing blocks
+        #         erasedBlock = addToScreen(Scene, predefinedSquare, c+pixelRatio, r-pixelRatio)
+        #         itemToCheck = checkForItem(erasedBlock[0])
+        #         if itemToCheck in spriteDict and itemToCheck not in Inventory:
+        #             Inventory.append(itemToCheck)
+        #             inventoryChange = True
+        #         printScreen(Scene)
+        #         time.sleep(0.1)
+        #         continue
+
+
+            # continue
+        # Add this if using sprite wider than pixelRatio
+        # addToScreen(Scene, Stored[0], Stored[1], Stored[2])
+        # isSpriteNinja = sprites[rc%mod] == "Ninja"
+        if Direction != "Right" or Direction == "Right" or (isJumping > 0 and isJumping < 3):
             blockToRight = scanArea(Scene, (c + pixelRatio, r), pixelRatio, pixelRatio)
             itemToCheck = checkForItem(blockToRight)
             if (blockToRight == predefinedSquare) or (itemToCheck in passThrough) or erase or (not isSpriteNinja and Pallete == palleteSelection[2]) or colorMode:
@@ -1123,10 +1480,6 @@ while not keys.is_esc_pressed():
         # keys.clear_pressed_keys()
         keys.keys_pressed.discard(all)
     elif keys.is_a_pressed() and c > 0 and not Stored == [] or (keys.is_a_pressed() and isJumping > 0 and isJumping < 3 and c > 0):
-        if keys.is_q_pressed():
-            addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c-pixelRatio, r-pixelRatio)
-            # continue
-        # isSpriteNinja = sprites[rc%mod] == "Ninja"
         #RTotates character to face left
         if Direction != "Left" and isSpriteNinja and not colorMode:
             # keys.clear_pressed_keys()
@@ -1139,7 +1492,24 @@ while not keys.is_esc_pressed():
             if isJumping == 0:
                 printScreen(Scene)
             Direction = "Left"
-        elif Direction != "Left" or Direction == "Left" or isJumping > 0 and isJumping < 3:
+            continue
+        #Place block to left and below if running and pressing q
+        if keys.is_q_pressed() and c > 0 and isSpriteNinja:
+            checkForBackground = scanArea(Scene, (c - pixelRatio, r-pixelRatio), pixelRatio, pixelRatio)
+            if checkForBackground == predefinedSquare:
+                #Animate player placing like erase
+                addToScreen(Scene, Stored[0], c, r)
+                addToScreenWithoutColor(Scene, mirror(spriteDict["High Res Ninja Down"]), newBlack, c, r)
+                printScreen(Scene)
+                addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+                # time.sleep(0.1)
+                addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c-pixelRatio, r-pixelRatio)
+                if Inventory[previousNumber] in animatingSprites:
+                    portalsOnScreen[(cToChange, rToChange)] = [spriteDict[Inventory[previousNumber]], predefinedSquare]
+                printScreen(Scene)
+            # continue
+        # isSpriteNinja = sprites[rc%mod] == "Ninja"
+        if Direction != "Left" or Direction == "Left" or isJumping > 0 and isJumping < 3:
             blockToLeft = scanArea(Scene, (c - pixelRatio, r), pixelRatio, pixelRatio)
             itemToCheck = checkForItem(blockToLeft)
             #Check if valid block to go through
@@ -1168,28 +1538,89 @@ while not keys.is_esc_pressed():
         keys.keys_pressed.discard(all)
     else:
         isJumping = 0
+    #Moving between the whole world not portal travel
+    if (keys.is_a_pressed() and c == 0) or (keys.is_d_pressed() and c == sceneWidth - pixelRatio) or (keys.is_w_pressed() and r == sceneLength - globalDisplacement - pixelRatio) or (keys.is_s_pressed() and r == 0):
+            blockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
+            if blockBelow != predefinedSquare or Stored[0] in climbing:
+                addToScreen(Scene, Stored[0], c, r)
+                direction = ""
+                if keys.is_w_pressed(): 
+                    direction = "Up"
+                    if keys.is_q_pressed() and Stored[0] == predefinedSquare:
+                        addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r)
+                elif keys.is_s_pressed(): direction = "Down"
+                elif keys.is_a_pressed(): direction = "Left"
+                elif keys.is_d_pressed(): direction = "Right"
+                Stored = moveScene(Scene, Stored, direction)
+                # Direction = "Left"
+                isJumping = 0
+                if keys.is_q_pressed():
+                    scanBlockBelow = scanArea(Scene, (c, r - pixelRatio), pixelRatio, pixelRatio)
+                    if scanBlockBelow == predefinedSquare:
+                        addToScreenWithoutColor(Scene, spriteDict[Inventory[previousNumber]], newBlack, c, r-pixelRatio)
+                        if Inventory[previousNumber] in animatingSprites:
+                            portalsOnScreen[(c, r-pixelRatio)] = [spriteDict[Inventory[previousNumber]], predefinedSquare]
+                        printScreen(Scene)
+
+    
     #Rotates block
-    if keys.is_x_pressed() and not Stored == [] and not erase and not colorMode and sprites[rc%mod] != "Ninja":
-        #Allows flipping current sprite
-        if overwriteSpot == False:
-            overwriteSpot = rotate(spriteDict[sprites[rc%mod]], 270)
+    if keys.is_x_pressed() and not Stored == [] and not erase and not colorMode:
+        # If player is looking certain way, then rotate that block
+        if isSpriteNinja:
+            rScan = 0
+            cScan = 0
+            if Direction == "Right":
+                cScan = pixelRatio
+            elif Direction == "Left":
+                cScan = -pixelRatio
+            elif Direction == "Down":
+                rScan = -pixelRatio
+            elif Direction == "Up":
+                rScan = pixelRatio
+            scannedArea = scanArea(Scene, (c + cScan, r + rScan), pixelRatio, pixelRatio)
+            if scannedArea != predefinedSquare:
+                addToScreen(Scene, rotate(scannedArea, 270), c + cScan, r + rScan)
+                printScreen(Scene)
+                time.sleep(.1)
+        
         else:
-            overwriteSpot = rotate(overwriteSpot, 270)
-        # currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
-        addToScreen(Scene, Stored[0], c, r)
-        addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
-        printScreen(Scene)
-        time.sleep(.2)
+            #Allows flipping current sprite
+            if overwriteSpot == False:
+                overwriteSpot = rotate(spriteDict[sprites[rc%mod]], 270)
+            else:
+                overwriteSpot = rotate(overwriteSpot, 270)
+            # currentBlock = scanArea(Scene, (c, r), pixelRatio, pixelRatio)
+            addToScreen(Scene, Stored[0], c, r)
+            addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+            printScreen(Scene)
+            time.sleep(.2)
     # Flips block
-    if keys.is_f_pressed() and not Stored == [] and not erase and not colorMode and sprites[rc%mod] != "Ninja":
-        if overwriteSpot == False:
-            overwriteSpot = mirror(spriteDict[sprites[rc%mod]])
-        else:
-            overwriteSpot = mirror(overwriteSpot)
-        addToScreen(Scene, Stored[0], c, r)
-        addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
-        printScreen(Scene)
-        time.sleep(.2)
+    if keys.is_f_pressed() and not Stored == [] and not erase and not colorMode:
+        if isSpriteNinja:
+            rScan = 0
+            cScan = 0
+            if Direction == "Right":
+                cScan = pixelRatio
+            elif Direction == "Left":
+                cScan = -pixelRatio
+            elif Direction == "Down":
+                rScan = -pixelRatio
+            elif Direction == "Up":
+                rScan = pixelRatio
+            scannedArea = scanArea(Scene, (c + cScan, r + rScan), pixelRatio, pixelRatio)
+            if scannedArea != predefinedSquare:
+                addToScreen(Scene, mirror(scannedArea), cScan + c, rScan + r)
+                printScreen(Scene)
+                time.sleep(.1)
+        else:    
+            if overwriteSpot == False:
+                overwriteSpot = mirror(spriteDict[sprites[rc%mod]])
+            else:
+                overwriteSpot = mirror(overwriteSpot)
+            addToScreen(Scene, Stored[0], c, r)
+            addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+            printScreen(Scene)
+            time.sleep(.2)
     #Erases border outline
     elif keys.is_b_pressed() and borderColor == defaultBorder and not Stored == [] and not erase and colorMode:
         addToScreen(Scene, square(pixelRatio,pixelRatio, Pallete[rc%mod]), c, r)
@@ -1208,18 +1639,18 @@ while not keys.is_esc_pressed():
         time.sleep(.1)
 
     #Erases block
-    if keys.is_e_pressed() and not Stored == []:
-        if isSpriteNinja:
-            if c >= len(Scene[0]) - pixelRatio or c <= 0:
-                continue
+    if keys.is_e_pressed() and not Stored == [] and not (isSpriteNinja and keys.is_d_pressed() and keys.is_a_pressed()):
+        # if isSpriteNinja and (Direction == "Right" or Direction == "Left"):
+        #     if c >= len(Scene[0]) - pixelRatio or c <= 0:
+        #         continue
         
         # overwriteSpot = False
         # Erases background of scene in order to prepare the white outline
-        if Stored[0] != predefinedSquare and erase == True and sprites[rc%mod] != "Ninja":
+        if Stored[0] != predefinedSquare and erase == True and not isSpriteNinja:
             points += 100
             checkItem = checkForItem(Stored[0], True)
             if checkItem != False:
-                if checkItem not in Inventory:
+                if checkItem not in Inventory and checkItem in itemsDict.keys():
                     Inventory.append(checkItem)
                     inventoryChange = True
         #starts to create new scene to create a box with white outline
@@ -1241,18 +1672,56 @@ while not keys.is_esc_pressed():
 
             #If already in eraser mode and block is erased, then it will add background color to the scene
             #Checks Objecrs in the scene to see if it is an item that has an animation
+            
             if isSpriteNinja:
                 if Direction == "Right":
+                    if c >= len(Scene[0]) - pixelRatio:
+                        continue
+                    addToScreen(Scene, Stored[0], c, r)
+                    addToScreenWithoutColor(Scene, spriteDict["High Res Ninja Up"], newBlack, c, r)
+                    printScreen(Scene)
+                    time.sleep(.1)
+                    addToScreenWithoutColor(Scene, spriteDict["High Res Ninja"], newBlack, c, r)
                     c += pixelRatio
                 elif Direction == "Left":
+                    if c <= 0:
+                        continue
+                    addToScreen(Scene, Stored[0], c, r)
+                    addToScreenWithoutColor(Scene, mirror(spriteDict["High Res Ninja Up"]), newBlack, c, r)
+                    printScreen(Scene)
+                    time.sleep(.1)
+                    addToScreenWithoutColor(Scene, mirror(spriteDict["High Res Ninja"]), newBlack, c, r)
                     c -= pixelRatio
                 elif Direction == "Down":
+                    if r <= 0:
+                        continue
+                    addToScreen(Scene, Stored[0], c, r)
+                    if overwriteSpot == spriteDict["High Res Ninja Down"]:
+                        addToScreenWithoutColor(Scene, spriteDict["High Res Ninja"], newBlack, c, r)
+                    else:
+                        addToScreenWithoutColor(Scene, mirror(spriteDict["High Res Ninja"]), newBlack, c, r)
+                    printScreen(Scene)
+                    time.sleep(.1)
+                    addToScreen(Scene, Stored[0], c, r)
+                    addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
                     r -= pixelRatio
                 elif Direction == "Up":
+                    if r >= sceneLength - 3*pixelRatio:
+                        continue
+                    addToScreen(Scene, Stored[0], c, r)
+                    if overwriteSpot == spriteDict["High Res Ninja Up"]:
+                        addToScreenWithoutColor(Scene, spriteDict["High Res Ninja"], newBlack, c, r)
+                    else:
+                        addToScreenWithoutColor(Scene, mirror(spriteDict["High Res Ninja"]), newBlack, c, r)
+                    printScreen(Scene)
+                    time.sleep(.1)
+                    addToScreen(Scene, Stored[0], c, r)
+                    addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
                     r += pixelRatio
             else:
                 addToScreen(Scene, Stored[0], c, r)
                 Stored = [predefinedSquare, c, r]
+            
             checkIfPortal = addToScreen(Scene, predefinedSquare, c, r)
             itemToCheck = checkForItem(checkIfPortal[0])
             if itemToCheck in animatingSprites:
@@ -1260,7 +1729,7 @@ while not keys.is_esc_pressed():
             #Make elif if dont want to collect animation sprites
             if itemToCheck != False and itemToCheck != "Background":
                 points += 100
-                if itemToCheck not in Inventory:
+                if itemToCheck not in Inventory and itemToCheck in itemsDict.keys():
                     Inventory.append(itemToCheck)
                     inventoryChange = True
             # Stored = [predefinedSquare, c, r]
@@ -1297,6 +1766,7 @@ while not keys.is_esc_pressed():
             overwriteSpot = spriteDict[sprites[rc%mod]]
             #Causes inventory to change border color around selected sprite
             switchedSprite = True
+        isSpriteNinja = False
         printScreen(Scene)
         if not borderColor == defaultBorder and colorMode:
             borderColor = Pallete[rc%mod]
@@ -1316,12 +1786,13 @@ while not keys.is_esc_pressed():
             overwriteSpot = spriteDict[sprites[rc%mod]]
             #Causes inventory to change border color around selected sprite
             switchedSprite = True
-
+        isSpriteNinja = False
         printScreen(Scene)
         if not borderColor == defaultBorder and colorMode:
             borderColor = Pallete[rc%mod]
         if not switchedSprite:
             time.sleep(.3)
+    keys.keys_pressed.discard(all)
 t.stop()
 portalsOnScreen = {}
 
@@ -1339,7 +1810,7 @@ saveScrene = screen(sceneLength, sceneWidth, cyan)
 LetterCol = int(sceneWidth/5)
 LetterRow = int(sceneLength/1.3)
 LetterColor = black
-overwrite = addLetterToScreen(saveScrene, "Save current Game or Restart?\n{1}'R'{r} to {1}Restart{r}!\n{2}'S'{r} to {2}Save{r}!", LetterColor,  LetterCol, LetterRow)
+overwrite = addLetter(saveScrene, "Save current Game or Restart?\n{1}'R'{r} to {1}Restart{r}!\n{2}'S'{r} to {2}Save{r}!", LetterColor,  LetterCol, LetterRow)
 keys.keys_pressed.discard(all)
 printScreen(saveScrene)
 # time.sleep(0.5)
@@ -1351,7 +1822,7 @@ while not keys.is_s_pressed():
         for i, sprite in enumerate(overwrite[0]):
             #Replaces what inventory drew over before
             addToScreen(saveScrene, sprite, overwrite[1][i][0], overwrite[1][i][1])
-        addLetterToScreen(saveScrene, "{1}Restarting...{r}", green, LetterCol, LetterRow)
+        addLetter(saveScrene, "{1}Restarting...{r}", green, LetterCol, LetterRow)
         printScreen(saveScrene)
         #If dont want to be saved remove the files
         if os.path.exists("Scene.txt"):
@@ -1369,7 +1840,7 @@ while not keys.is_s_pressed():
 
 for i, sprite in enumerate(overwrite[0]):
     addToScreen(saveScrene, sprite, overwrite[1][i][0], overwrite[1][i][1])
-addLetterToScreen(saveScrene, "{2}Saved{r}!", LetterColor, LetterCol, LetterRow)
+addLetter(saveScrene, "{2}Saved{r}!", LetterColor, LetterCol, LetterRow)
 printScreen(saveScrene)
 
 #Save the scene to a file to be loaded later

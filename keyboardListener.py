@@ -165,13 +165,18 @@ class MyKeyListener:
         return "Key.shift" in self.keys_pressed
     def is_space_pressed(self):
         return "Key.space" in self.keys_pressed
+    def is_ctrl_pressed(self):
+        return "Key.ctrl" in self.keys_pressed
     def is_esc_pressed(self):
         if "Key.esc" in self.keys_pressed:
             print("You have exited the program")
             sys.stdout.write("\033[?25h" + "\033[0m")
             return True
             # sys.exit()
+        
     
+    def is_smallQuote_pressed(self):
+        return "'`'" in self.keys_pressed
     
     def check_keys(self):
         for key in list(self.keys_pressed):  # Create a copy of self.keys_pressed
