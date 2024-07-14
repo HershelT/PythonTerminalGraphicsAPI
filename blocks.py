@@ -707,7 +707,7 @@ def moveScene(Scene, Stored, Direction):
     if not keys.is_e_pressed():
         if not (checkBlockItem in climbing and Direction == "Down" and keys.is_s_pressed()):
             if not (checkBlockItem in climbing and Direction == "Up" and keys.is_w_pressed()):
-                    if (checkBlockItem != "Background"): 
+                    if (checkBlockItem not in passThrough and checkBlockItem != "Background") or (checkBlockItem in climbing):
                         c = previousC
                         r = previousR
                         addToScreen(Scene, overwriteSpot, c, r)
@@ -796,6 +796,7 @@ def checkGravity(Scene, blockBelow, Stored, c, r, pixelRatio, overwritespot):
                 r = previousR
                 
                 addToScreenWithoutColor(Scene, drawn, newBlack, c, r)
+            time.sleep(0.1)
     return [r, Stored]
 
 #Starts the portal checker for animation
@@ -1551,6 +1552,30 @@ while not keys.is_esc_pressed():
                 elif keys.is_s_pressed(): direction = "Down"
                 elif keys.is_a_pressed(): direction = "Left"
                 elif keys.is_d_pressed(): direction = "Right"
+                
+                if Direction != direction:
+                    if isSpriteNinja and not colorMode:
+                        if direction == "Right":
+                            overwriteSpot = spriteDict["High Res Ninja"]
+                        elif direction == "Left":
+                            overwriteSpot = mirror(spriteDict["High Res Ninja"])
+                        elif direction == "Down":
+                            if Direction == "Left":
+                                overwriteSpot = mirror(spriteDict["High Res Ninja Down"])
+                            else:
+                                overwriteSpot = spriteDict["High Res Ninja Down"]
+                        elif direction == "Up":
+                            if Direction == "Left" or overwriteSpot == mirror(spriteDict["High Res Ninja Down"]):
+                                overwriteSpot = mirror(spriteDict["High Res Ninja Up"])
+                            else:
+                                overwriteSpot = spriteDict["High Res Ninja Up"]
+                        Direction = direction
+                        addToScreen(Scene, Stored[0], c, r)
+                        addToScreenWithoutColor(Scene, overwriteSpot, newBlack, c, r)
+                        printScreen(Scene)
+                        time.sleep(.1)
+                        continue
+                # Check movement between chunks
                 Stored = moveScene(Scene, Stored, direction)
                 # Direction = "Left"
                 isJumping = 0
