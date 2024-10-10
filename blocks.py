@@ -196,7 +196,8 @@ SpritesPeople = ["Ninja", "Ninja Crouch", "Bow Staff Ninja", "Angel",
                 #  "High Res Ninja Torch", "High Res Ninja Torch Down", "High Res Ninja Torch Up",
                 #  "Blank High Res Ninja", "Blank High Res Ninja Down", "Blank High Res Ninja Up"]
 SpritesDecoration = ["Window","Brick","Fire", "Netherack", "Nether Portal", "Obsidian", "Chest", "Item Frame"]
-SpritesTerrain = ["Grass", "Dirt", "Grass Connector", "Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore", "Wood Plank", "Stone Brick", "Mossy Cobblestone"]
+SpritesTerrain = ["Grass", "Dirt", "Grass Connector", "Stone", "Iron Ore", "Diamond Ore", "Gold Ore", "Emerald Ore", 
+                  "Wood Plank", "Stone Brick", "Mossy Cobblestone", "Water"]
 spriteDict = {}
 
 #Setting up sprites for the big sprite sheet
@@ -267,7 +268,7 @@ itemsNames = []
 ItemsLevels = ["Heart","Experience Orb", "Wings", "Ninja", "Mana Orb", "Gold Coin"]
 ItemsDecorations = ["Window", "Ladder", "Platform", "Door", "Small Portal", "Fire", "Chest", "Item Frame", "Item Frame Check"]
 ItemsBlocks = ["Dirt", "Stone", "Grass", "Grass Connector", "Brick", "Obsidian","Nether Portal", "Netherack", "Wood Plank"]
-ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore", "Stone Brick", "Mossy Cobblestone"]
+ItemsOres = ["Diamond Ore", "Iron Ore", "Gold Ore", "Emerald Ore", "Stone Brick", "Mossy Cobblestone", "Water"]
 ItemsTools = ["Diamond Pickaxe", "Wood Sword", "Diamond Pic", "Flint 'n Steel"]
 ItemsItems = ["Diamond", "Iron Ingot", "Gold Ingot", "Emerald"]
 
@@ -328,7 +329,7 @@ for i, spriteName in enumerate(sprites):
 # time.sleep(1)
 spriteDict["Background"] = predefinedSquare
 #Defining types of sprites that are in the background, as in can pass through on fall
-backgroundSprites = ["Small Portal", "Fire", "Chest"]
+backgroundSprites = ["Small Portal", "Fire", "Chest", "Water"]
 #Creating background sprites that are in the background such that you can walk through them
 SpritesInBackground = [predefinedSquare]
 for backgroundSprite in backgroundSprites:
@@ -337,7 +338,7 @@ for backgroundSprite in backgroundSprites:
 #blocks a character can climb
 climbing = ["Ladder", "Platform"]
 #Blocks a charcter can pass through
-passThrough = [predefinedSquare, "Background", "Ladder", "Nether Portal", "Platform", "Door", "Small Portal", "Fire","Chest"]
+passThrough = [predefinedSquare, "Background", "Ladder", "Nether Portal", "Platform", "Door", "Small Portal", "Fire","Chest", "Water"]
 Angel = spriteDict["Angel"]
 Ninja = spriteDict["Ninja"]
 Chest = {}
@@ -845,8 +846,8 @@ class CheckPortalThread(threading.Thread):
             # if change and not self.stop_flag: 
             #     # printScreen(Scene)
 #Start threaqd (Has LAg)
-# t = CheckPortalThread()
-# t.start()
+t = CheckPortalThread()
+t.start()
 # print("Started Portal Thread")
 
 #If want to play with micro blocks uncomment
@@ -857,7 +858,7 @@ class CheckPortalThread(threading.Thread):
 isJumping = False
 Holding = "Iron Pickaxe"
 #Add names of sprites that will be animated by flipping them
-animatingSprites = ["Small Portal", "Fire"]
+animatingSprites = ["Small Portal", "Fire", "Water"]
 #Check if any of the animating sprites are on screen
 def scanForAnimationSprite(Scene, pixelRatio):
     global portalsOnScreen

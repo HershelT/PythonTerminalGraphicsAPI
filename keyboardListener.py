@@ -1,24 +1,25 @@
 from pynput.keyboard import Controller, Key
+from pynput import keyboard
 import time
 import sys, os
 
 #Check if windows or mac
 is_windows = os.name == 'nt'
 resizeKey = Key.ctrl if is_windows else Key.cmd
-def resizeWindow():
+def resizeWindow(zoom = 1):
     keyboard = Controller()
     for _ in range(20):
         with keyboard.pressed(resizeKey):
             keyboard.press('-')
             keyboard.release('-')
         # time.sleep(0.1)
-    with keyboard.pressed(resizeKey):
-        keyboard.press('+')
-        keyboard.release('+')
+    for _ in range(0, zoom):
+        with keyboard.pressed(resizeKey):
+            keyboard.press('+')
+            keyboard.release('+')
     # time.sleep(0.1)
     del keyboard
 
-from pynput import keyboard
 # Define a key listener
 class MyKeyListener:
     def __init__(self, key_actions={}):
@@ -146,6 +147,25 @@ class MyKeyListener:
         else:
             return False
     
+    #See if wasd is pressed
+    def wasd(self):
+        if self.is_w_pressed():
+            return "w"
+        elif self.is_a_pressed():
+            return "a"
+        elif self.is_s_pressed():
+            return "s"
+        elif self.is_d_pressed():
+            return "d"
+        else:
+            return False
+    #se if any key is pressed and return that key
+    def get_pressed_key(self):
+        for key in self.keys_pressed:
+            return key
+        return False
+
+
     #Non keyboard charcters like enter 
     def is_left_arrow_pressed(self):
         return "Key.left" in self.keys_pressed

@@ -31,6 +31,9 @@ letters = pixelImage(letters)
 people = [f'ImageReader{dir_sep}BlocksSprites{dir_sep}People.png']
 people = pixelImage(people)
 
+SPRITE_COLOR_REPLACE = [f'ImageReader{dir_sep}BlocksSprites{dir_sep}technicalColor.png']
+SPRITE_COLOR_REPLACE = pixelImage(SPRITE_COLOR_REPLACE)
+SPRITE_COLOR_REPLACE = SPRITE_COLOR_REPLACE.getPixel(0).getPixel(0, 0)
 
 
 spriteBlack = letters.getPixel(0).getPixel(0, 8)

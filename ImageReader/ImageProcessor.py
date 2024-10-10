@@ -170,7 +170,7 @@ class pixelImage:
             img = img.crop(bbox)
 
         return img
-    def __init__(self, img : list, trim = False):
+    def __init__(self, img : list, oldColor = False, newColor = False, findPixel = False, trim = False):
         imageList = []
 
         self.ImageAnscii = []
@@ -181,7 +181,10 @@ class pixelImage:
                 imageList.append(Image.open(image))
         for rgb in imageList:
             pixel = self.getPixelToAnscii(rgb)
-            self.ImageAnscii.append(Pixel(pixel))
+            pixel = Pixel(pixel)
+            if oldColor != False:
+                pixel = pixel.replacePixels(oldColor, newColor)
+            self.ImageAnscii.append(pixel)
 
     def getAnsciiList(self):
         return self.ImageAnscii
